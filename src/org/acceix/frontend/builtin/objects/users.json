@@ -1,0 +1,70 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "name": "users",
+  "title": "users",
+  "roleCreate": "usermgr",
+  "roleRead": "usermgr",
+  "roleUpdate": "usermgr",
+  "roleDelete": "usermgr",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "npt_users": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+                
+        "USERNAME": {
+            "displayName" : "Username"
+        },
+        "PASSWORD": {
+            "displayName" : "Password",
+            "isViewable" : false,
+            "isCrypted" : true
+        },
+        "domain_id": {
+            "displayName" : "Domain",
+            "externalObject" : "domains",
+            "externalGetField" : "domain"
+        },
+        "MDESC": {
+            "displayName" : "Description",
+            "isViewable" : false
+        },
+        "STATUS": {
+            "displayName" : "Status",
+            "externalObject" : "users_statuses",
+            "externalGetField" : "name"
+        },
+        "GROUPID": {
+            "displayName" : "Group",
+            "externalObject" : "groups",
+            "externalGetField" : "groupname",
+            "isViewable" : false
+        },
+        "ROLESETID": {
+            "displayName" : "Roleset",
+            "externalObject" : "roleset_info",
+            "externalGetField" : "rolesetname",
+            "isViewable" : false
+                    
+        },
+        "created_at": {
+            "displayName" : "Created at",
+            "isCreatable" : false,
+            "isEditable" : false
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "Users",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+
+

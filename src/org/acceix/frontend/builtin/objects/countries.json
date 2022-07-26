@@ -1,0 +1,55 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "name": "countries",
+  "title": "Country list",
+  "roleCreate": "usermgr",
+  "roleRead": "usermgr",
+  "roleUpdate": "usermgr",
+  "roleDelete": "usermgr",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "npt_countries": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "iso": {
+            "displayName" : "ISO"
+        },
+        "name": {
+            "displayName" : "Name"
+        },
+        "nicename": {
+            "displayName" : "Nicename"
+        },
+        "iso3": {
+            "displayName" : "ISO3"
+        },
+        "numcode": {
+            "displayName" : "Numcode"
+        },
+        "phonecode": {
+            "displayName" : "Phone code"
+        },
+        "active": {
+            "displayName" : "Is Active ?"
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "Countries",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+

@@ -1,0 +1,35 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "name": "rolelist",
+  "title": "rolelist",
+  "roleCreate": "netondoadmin",
+  "roleRead": "netondoadmin",
+  "roleUpdate": "netondoadmin",
+  "roleDelete": "netondoadmin",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "rolelist": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "rolename": {
+            "displayName": "Role name"
+        },
+        "roledesc": {
+            "displayName": "Role description"
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "Roles",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+
+

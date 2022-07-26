@@ -1,0 +1,20 @@
+{
+  "objectType": "functionSQL",
+  "templateForResult": "/defaultTemplates/createFunctionData",
+  "name": "getActivityLog",
+  "title": "getActivityLog",
+  "operationType": "read",
+  "roleRun": "member_access",
+  "requireAuth": true,
+  "inputs": {
+    "date_from": {
+      "dataType": "string"
+    },
+    "date_to": {
+      "dataType": "string"
+    }
+  },
+  "function": {
+    "content": "select t_datetime,ip_address,system_name from npt_activity_logs where user_id = $user_id$ and t_datetime >= ? and t_datetime <= ?"
+  }
+}

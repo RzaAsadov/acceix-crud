@@ -1,0 +1,62 @@
+{
+  "objectType": "list",
+  "operationType": "create,read,update,delete",
+  "name": "rolesets",
+  "title": "rolesets",
+  "roleCreate": "usermgr",
+  "roleRead": "usermgr",
+  "roleUpdate": "usermgr",
+  "roleDelete": "usermgr",
+  "creatable": true,
+  "editable": true,
+  "templateForListRead" : "/defaultTemplates/readListObjectData",
+  "requireAuth": true,
+  "tables": {
+    "rolesets": {
+      "id-field": {
+        "id": "id",
+        "listIdField" : "SETID"
+      },
+      "fields": {
+        "SETID:0": {
+            "displayName" : "Roleset",
+            "externalObject" : "roleset_info",
+            "externalGetField" : "rolesetname",
+            "useExternalForCreate" : false
+        },
+        "SETID:1": {
+            "displayName" : "Description",
+            "externalObject" : "roleset_info",
+            "externalGetField" : "rolesetdesc",
+            "useExternalForCreate" : false
+        },
+        "ROLEID:0": {
+            "displayName" : "Roles",
+            "externalObject" : "rolelist",
+            "externalGetField" : "rolename",
+            "defaultValue" : "1",
+            "isListData" : true,
+            "useForAdd" : true
+        },
+        "ROLEID:1": {
+            "displayName" : "Roles",
+            "externalObject" : "rolelist",
+            "externalGetField" : "roledesc",
+            "defaultValue" : "1",
+            "isListData" : true
+        },
+        "OWNERUSERID": {
+            "isViewable" : false,
+            "isCreatable" : false,
+            "isEditable" : false
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "Rolesets",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+

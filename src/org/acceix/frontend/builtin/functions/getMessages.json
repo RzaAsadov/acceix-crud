@@ -1,0 +1,15 @@
+{
+  "objectType": "functionSQL",
+  "templateForResult": "/defaultTemplates/createFunctionData",
+  "name": "getMessages",
+  "title": "gets messages from pool",
+  "operationType": "read",
+  "roleRun": "member_access",
+  "requireAuth": true,
+  "inputs": {
+
+  },
+  "function": {
+    "content": "select id,msg from npt_user_messages_queue where user_id = $user_id$"
+  }
+}

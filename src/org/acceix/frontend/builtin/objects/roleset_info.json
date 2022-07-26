@@ -1,0 +1,35 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "name": "roleset_info",
+  "title": "roleset info",
+  "roleCreate": "usermgr",
+  "roleRead": "usermgr",
+  "roleUpdate": "usermgr",
+  "roleDelete": "usermgr",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "npt_roleset_info": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "rolesetname": {
+            "displayName" : "Roleset"     
+        },
+        "rolesetdesc": {
+            "displayName" : "Description"
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "Roleset info",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+
+

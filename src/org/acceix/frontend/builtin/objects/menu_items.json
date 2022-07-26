@@ -1,0 +1,54 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "name": "menu_items",
+  "title": "Menu items under menu categories",
+  "roleCreate": "netondoadmin",
+  "roleRead": "netondoadmin",
+  "roleUpdate": "netondoadmin",
+  "roleDelete": "netondoadmin",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "menu_items": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "cat_id": {
+          "displayName" : "Category",
+          "useExternalForCreate": true, 
+          "externalObject" : "menu_categories",
+          "externalTable" : "menu_categories",
+          "externalGetField" : "name", 
+          "externalJoinField" : "id"
+        },
+        "name": {
+          "displayName" : "Name"
+        },
+        "role_id": {
+          "displayName" : "Role",
+          "useExternalForCreate": true, 
+          "externalObject" : "rolelist",
+          "externalTable" : "rolelist",
+          "externalGetField" : "roledesc", 
+          "externalJoinField" : "id"
+        },
+        "link": {
+          "displayName" : "Link",
+          "isViewable" : false
+        }
+      }
+    }
+  },
+
+  "metadata" : {
+      "pagetitle" : "Menu items",        
+      "pageLength" : "100",
+      "editButtonInTable" : true     
+  }
+}
+
+
+

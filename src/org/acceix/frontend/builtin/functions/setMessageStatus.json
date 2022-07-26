@@ -1,0 +1,20 @@
+{
+  "objectType": "functionSQL",
+  "templateForResult": "/defaultTemplates/createFunctionData",
+  "name": "setMessageStatus",
+  "title": "sets status from user to read messages",
+  "operationType": "update",
+  "roleRun": "member_access",
+  "requireAuth": true,
+  "inputs": {
+    "msg_status": {
+      "dataType": "int"
+    },
+    "msg_id" : {
+      "dataType": "int"    
+    }    
+  },
+  "function": {
+    "content": "update npt_user_messages_queue set msg_status = ? where user_id = $user_id$ and id = ?"
+  }
+}

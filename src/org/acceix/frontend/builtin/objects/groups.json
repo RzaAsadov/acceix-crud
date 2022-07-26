@@ -1,0 +1,46 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "name": "groups",
+  "title": "roups",
+  "roleCreate": "netondoadmin",
+  "roleRead": "netondoadmin",
+  "roleUpdate": "netondoadmin",
+  "roleDelete": "netondoadmin",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "groups": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "GROUPNAME": {
+            "displayName" : "Name"
+        },
+        "GROUPDESC": {
+            "displayName" : "Description"
+        },
+        "OWNERUSERID": {
+            "isViewable" : false,
+            "isEditable" : false,
+            "isCreatable" : false
+        },
+        "MANDATORY": {
+            "isViewable" : false,
+            "isEditable" : false,
+            "isCreatable" : false      
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "System groups",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+
+
+

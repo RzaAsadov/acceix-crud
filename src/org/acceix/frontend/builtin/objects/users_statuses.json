@@ -1,0 +1,35 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "name": "users_statuses",
+  "title": "users_statuses",
+  "roleCreate": "usermgr",
+  "roleRead": "usermgr",
+  "roleUpdate": "usermgr",
+  "roleDelete": "usermgr",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "npt_users_statuses": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "name": {
+            "displayName" : "Name"
+        },
+        "description": {
+            "displayName" : "Description"
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "Users statuses",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+
+

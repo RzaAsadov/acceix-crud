@@ -1,0 +1,42 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "name": "cities",
+  "title": "City list by country",
+  "roleCreate": "usermgr",
+  "roleRead": "usermgr",
+  "roleUpdate": "usermgr",
+  "roleDelete": "usermgr",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "tables": {
+    "npt_cities": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "country_id": {
+            "displayName" : "Country",
+            "externalObject" : "countries",
+            "externalGetField" : "nicename"
+        },
+        "name": {
+            "displayName" : "City"
+        }
+      }
+    }
+  },
+  "metadata" : {
+        "pagetitle" : "Cities",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+}
+

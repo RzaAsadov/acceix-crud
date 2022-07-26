@@ -1,0 +1,98 @@
+{
+    "objectType" : "table",
+    "operationType" : "create,read,update,delete",
+
+    "name": "domains",
+    "title" : "Domains",
+    "creatable" : true,
+    "editable" : true,
+    "requireAuth" : true,  
+    "roleCreate" : "netondoadmin",
+    "roleRead" : "netondoadmin",
+    "roleUpdate" : "netondoadmin",
+    "roleDelete" : "netondoadmin",
+    "tables": {
+
+        "domains": {
+
+            "id-field": {
+              "id" : "id"
+            },             
+
+            "fields": {
+
+                "domain": {
+                  "displayName": "Name"
+                },
+                "url": {
+                  "displayName": "URL"
+                },
+                "default_roleset_id" : {
+                    "displayName" : "Roleset",
+                    "externalObject" : "roleset_info",
+                    "externalGetField" : "rolesetname",
+                    "isViewable" : false
+                },
+                "default_group_id" : {
+                    "displayName" : "Group",
+                    "externalObject" : "groups",
+                    "externalGetField" : "groupname",
+                    "isViewable" : false
+                },
+                "mainpage": {
+                  "displayName": "Mainpage file",
+                  "isViewable" : false
+                },
+                "signinpage": {
+                  "displayName": "Signinpage file",
+                  "isViewable" : false
+                },
+                "signuppage": {
+                  "displayName": "Signuppage file",
+                  "isViewable" : false
+                },
+                "title": {
+                  "displayName": "Title",
+                  "isViewable" : false
+                },                 
+                "domain_token": {
+                  "displayName": "Token",
+                  "isViewable" : false
+                },
+                "active": {
+                  "displayName": "Active"
+                },
+                "enable_web_registration": {
+                  "displayName": "Enable web registration"
+                },                 
+                "enable_email_verification": {
+                  "displayName": "Verify email",
+                  "isViewable" : false
+                },                 
+                "enable_phone_verification": {
+                  "displayName": "Verify phone",
+                  "isViewable" : false
+                }, 
+                "sendsms_script": {
+                  "displayName": "Sms sender script",
+                  "isViewable" : false
+                },                 
+                "sendmail_script": {
+                  "displayName": "Mail sender script",
+                  "isViewable" : false
+                }
+
+            }
+
+        }
+
+    },
+
+    "metadata" : {
+        "pagetitle" : "Domains",        
+        "pageLength" : "100",
+        "editButtonInTable" : true     
+    }
+
+  }
+

@@ -1,0 +1,45 @@
+{
+  "objectType": "table",
+  "operationType": "create,read,update,delete",
+  "name": "menu_categories",
+  "title": "menu_categories",
+  "roleCreate": "netondoadmin",
+  "roleRead": "netondoadmin",
+  "roleUpdate": "netondoadmin",
+  "roleDelete": "netondoadmin",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+
+  "tables": {
+    "menu_categories": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+                
+        "domain_id": {
+          "displayName" : "Domain",
+          "externalObject" : "domains",
+          "externalTable" : "domains",
+          "externalGetField" : "domain",
+          "externalJoinField" : "id"
+        },                 
+        "name": {
+          "displayName" : "Name"
+        },
+        "icon": {
+          "displayName" : "Icon font"
+        }
+      }
+    }
+  },
+
+  "metadata" : {
+      "pagetitle" : "Menu categories",        
+      "pageLength" : "100",
+      "editButtonInTable" : true     
+  }
+}
+
+
