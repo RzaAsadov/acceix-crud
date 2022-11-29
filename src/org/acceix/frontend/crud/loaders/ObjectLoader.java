@@ -384,73 +384,83 @@ public class ObjectLoader implements Container<CrudObject> {
                     nCrudField.setObject(objectName);
                     nCrudField.setTable(tableName);
                     
-                    nCrudField.setDisplayName((String)tableFields.getOrDefault("displayName",nCrudField.getFieldKey()));
-
-                    nCrudField.setUseForAdd((boolean)tableFields.getOrDefault("useForAdd", Boolean.FALSE));                    
-                    nCrudField.setListData((boolean)tableFields.getOrDefault("isListData",Boolean.FALSE));
-                
-                    /*if (nCrudField.isList()) {
-                        nCrudField.setEditable(false);
-                        nCrudField.setCreatable(false);
-                        nCrudField.setViewable(false);
-                    } */                    
-
-                    nCrudField.setEditable((boolean)tableFields.getOrDefault("isEditable",Boolean.TRUE));
-                    nCrudField.setCreatable((boolean)tableFields.getOrDefault("isCreatable",Boolean.TRUE));
-                    nCrudField.setViewable((boolean)tableFields.getOrDefault("isViewable",Boolean.TRUE));
-
-
-                    nCrudField.setMandatory((boolean)tableFields.getOrDefault("isMandatory",Boolean.TRUE));                  
-                    nCrudField.setDefaultVaue((Object)tableFields.getOrDefault("defaultValue",null));
-                    nCrudField.setTestValue((Object)tableFields.getOrDefault("testValue",null));
-                    nCrudField.setCrypted((boolean)tableFields.getOrDefault("isCrypted",false));
-
-                    nCrudField.setLength((long)tableFields.getOrDefault("length",Long.parseLong("255")));
-                    nCrudField.setFormat((String)tableFields.getOrDefault("format","dd/MM/yyyy"));
-                    nCrudField.setFileFormat((String)tableFields.getOrDefault("fileFormat",null));
-                    nCrudField.setPath((String)tableFields.getOrDefault("path","null"));
-                    nCrudField.setApiKey((String)tableFields.getOrDefault("apiKey","null"));
-                    nCrudField.setDefaultCountry((String)tableFields.getOrDefault("defaultCountry","null"));
-                    nCrudField.setDefaultCity((String)tableFields.getOrDefault("defaultCity","null"));
-
+                    try {
                     
-                    
-                    
-                    if (tableFields.get("dataType")!=null) {
-                        nCrudField.setDataType(new DataTypes().stringToDataType((String)tableFields.getOrDefault("dataType","unknown")));
+                            nCrudField.setDisplayName((String)tableFields.getOrDefault("displayName",nCrudField.getFieldKey()));
+
+                            nCrudField.setUseForAdd((boolean)tableFields.getOrDefault("useForAdd", Boolean.FALSE));                    
+                            nCrudField.setListData((boolean)tableFields.getOrDefault("isListData",Boolean.FALSE));
+
+                            /*if (nCrudField.isList()) {
+                                nCrudField.setEditable(false);
+                                nCrudField.setCreatable(false);
+                                nCrudField.setViewable(false);
+                            } */                    
+
+                            nCrudField.setEditable((boolean)tableFields.getOrDefault("isEditable",Boolean.TRUE));
+                            nCrudField.setCreatable((boolean)tableFields.getOrDefault("isCreatable",Boolean.TRUE));
+                            nCrudField.setViewable((boolean)tableFields.getOrDefault("isViewable",Boolean.TRUE));
+
+
+                            nCrudField.setMandatory((boolean)tableFields.getOrDefault("isMandatory",Boolean.TRUE));                  
+                            nCrudField.setDefaultVaue((Object)tableFields.getOrDefault("defaultValue",null));
+                            nCrudField.setTestValue((Object)tableFields.getOrDefault("testValue",null));
+                            nCrudField.setCrypted((boolean)tableFields.getOrDefault("isCrypted",false));
+
+                            nCrudField.setLength((long)tableFields.getOrDefault("length",Long.parseLong("255")));
+                            nCrudField.setFormat((String)tableFields.getOrDefault("format","dd/MM/yyyy"));
+                            nCrudField.setFileFormat((String)tableFields.getOrDefault("fileFormat",null));
+                            nCrudField.setPath((String)tableFields.getOrDefault("path","null"));
+
+                            nCrudField.setMaxFileCount((long)tableFields.getOrDefault("maxFileCount", Long.parseLong("0")));
+
+                            nCrudField.setFileStatus((String)tableFields.getOrDefault("security","private"));
+                            nCrudField.setApiKey((String)tableFields.getOrDefault("apiKey","null"));
+                            nCrudField.setDefaultCountry((String)tableFields.getOrDefault("defaultCountry","null"));
+                            nCrudField.setDefaultCity((String)tableFields.getOrDefault("defaultCity","null"));
+
+
+                                       
+
+                            if (tableFields.get("dataType")!=null) {
+                                nCrudField.setDataType(new DataTypes().stringToDataType((String)tableFields.getOrDefault("dataType","unknown")));
+                            }
+
+
+
+                            nCrudField.setExternalForCreate((boolean)tableFields.getOrDefault("useExternalForCreate",Boolean.TRUE));
+                            nCrudField.setExternalNoChoiceOption((boolean)tableFields.getOrDefault("externalNoChoiceOption",Boolean.FALSE));
+
+                            if (tableFields.getOrDefault("externalObject",null) != null) {
+
+                                    nCrudField.setExternal(Boolean.TRUE);                        
+                                    nCrudField.setExternalObject((String)tableFields.getOrDefault("externalObject",null));
+                                    nCrudField.setExternalTable((String)tableFields.getOrDefault("externalTable",null));
+                                    nCrudField.setExternalAddQuery((String)tableFields.getOrDefault("externalAddQuery",null));
+
+                            }
+
+                            nCrudField.setExternalGetField((String)tableFields.getOrDefault("externalGetField",null));
+                            nCrudField.setExternalJoinField((String)tableFields.getOrDefault("externalJoinField",null));
+
+                            nCrudField.setStatementRead((String)tableFields.getOrDefault("readStatement",null));
+                            nCrudField.setStatementCreate((String)tableFields.getOrDefault("createStatement",null));
+                            nCrudField.setStatementUpdate((String)tableFields.getOrDefault("updateStatement",null));
+
+
+
+                            if ((List) tableFields.getOrDefault("enumValues",null) != null) {
+
+                                List enumValues = (List) tableFields.get("enumValues");
+                                enumValues.forEach((val) -> {
+                                    nCrudField.addEnumValue((String)val);
+                                });
+
+                            }
+
+                    } catch (ClassCastException ex) {
+                        System.out.println("Wrong field type in object=" + objectName + " field=" + tableField);
                     }
-                    
-
-                    
-                    nCrudField.setExternalForCreate((boolean)tableFields.getOrDefault("useExternalForCreate",Boolean.TRUE));
-
-                    if (tableFields.getOrDefault("externalObject",null) != null) {
-                        
-                            nCrudField.setExternal(Boolean.TRUE);                        
-                            nCrudField.setExternalObject((String)tableFields.getOrDefault("externalObject",null));
-                            nCrudField.setExternalTable((String)tableFields.getOrDefault("externalTable",null));
-                            nCrudField.setExternalAddQuery((String)tableFields.getOrDefault("externalAddQuery",null));
-
-                    }
-                    
-                    nCrudField.setExternalGetField((String)tableFields.getOrDefault("externalGetField",null));
-                    nCrudField.setExternalJoinField((String)tableFields.getOrDefault("externalJoinField",null));
-                    
-                    nCrudField.setStatementRead((String)tableFields.getOrDefault("readStatement",null));
-                    nCrudField.setStatementCreate((String)tableFields.getOrDefault("createStatement",null));
-                    nCrudField.setStatementUpdate((String)tableFields.getOrDefault("updateStatement",null));
-
-                                        
-                    
-                    if ((List) tableFields.getOrDefault("enumValues",null) != null) {
-                    
-                        List enumValues = (List) tableFields.get("enumValues");
-                        enumValues.forEach((val) -> {
-                            nCrudField.addEnumValue((String)val);
-                        });
-                    
-                    }
-
 
                     
                         if (dbMetaData.getColumn(nCrudField.getTable(), nCrudField.getFieldName()) != null) {

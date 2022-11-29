@@ -287,8 +287,12 @@ public class FunctionOperations {
                         } else if (inputObj.getDataType()==CrudInput.PAYLOAD_TYPE) {
                             
                             //NLogger.logger(NLogBlock.FUNCTIONS, NLog.MESSAGE,"FunctionOperations","runFunction",crudModule.getUsername(), "WEBHOOK RECEIVED (" + crudFunction.getName() +  ")-> " + requestObject.getRequestBody());
-
-                            preparedStatement.setString(index, requestObject.getRequestBody());
+                            if (requestObject.getRequestBody().length() > 0) {
+                                preparedStatement.setString(index, requestObject.getRequestBody());
+                            } else {
+                                if (inputValues.get("payload")!=null)
+                                preparedStatement.setString(index,(String)inputValues.get("payload"));
+                            }
                         }
 
 

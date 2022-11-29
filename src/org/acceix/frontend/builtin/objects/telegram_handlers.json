@@ -1,0 +1,46 @@
+{
+  "objectType": "table",
+  "name": "telegram_handlers",
+  "title": "Telegram handlers",
+  "tables": {
+    "npt_telegram_handlers": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "nice_name": {
+          "displayName": "Handler name"
+        },
+        "auth_key": {
+          "displayName": "Auth key"
+        },
+        "tg_api_id": {
+          "displayName": "Api ID",
+          "isViewable" : false
+        },
+        "tg_api_hash": {
+          "displayName": "API Hash",
+          "isViewable" : false
+        }
+      }
+    }
+  },
+  "roleCreate": "telegram",
+  "roleRead": "telegram",
+  "roleUpdate": "telegram",
+  "roleDelete": "telegram",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "metadata": {
+    "pagetitle": "Telegram handlers",
+    "pageLength": "100",
+    "editButtonInTable": true
+  }
+}

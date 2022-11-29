@@ -12,7 +12,7 @@
   "templateForListRead" : "/defaultTemplates/readListObjectData",
   "requireAuth": true,
   "tables": {
-    "rolesets": {
+    "npt_rolesets": {
       "id-field": {
         "id": "id",
         "listIdField" : "SETID"

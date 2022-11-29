@@ -218,8 +218,8 @@ public class ObjectOperations {
                     fieldsOfTable.removeAll(new LinkedList<>(mapToAppend.keySet()));
 
                     fieldsOfTable.forEach((var fieldOfTable) -> {
-                            if (t_crudTable.getField(fieldOfTable).getDefaultVaue() != null) {
-                                    mapToAppend.put(fieldOfTable, t_crudTable.getField(fieldOfTable).getDefaultVaue());
+                            if (t_crudTable.getField(fieldOfTable).getDefaultValue() != null) {
+                                    mapToAppend.put(fieldOfTable, t_crudTable.getField(fieldOfTable).getDefaultValue());
                             }
                     });
                     
@@ -231,14 +231,14 @@ public class ObjectOperations {
 
                         CrudField crudField = t_crudTable.getField(inputDataMap.getKey());
 
-                        if (!crudField.isCreatable() && crudField.getDefaultVaue() == null) continue;
+                        if (!crudField.isCreatable() && crudField.getDefaultValue() == null) continue;
                         
                         if (inputDataMap.getValue()==null || String.valueOf(inputDataMap.getValue()).isEmpty()) { continue; };
 
                         
                         
                         
-                            if (crudField.getDefaultVaue() != null && crudField.getDefaultVaue().equals("$user_id$")) {
+                            if (crudField.getDefaultValue() != null && crudField.getDefaultValue().equals("$user_id$")) {
                                 dataInsertable = dataInsertable.add(crudField.getFieldName(), 
                                                                 dataTypes.convertByDataType(String.valueOf(crudModule.getUserId()),
                                                                                                 DataTypes.TYPE_INT, 
@@ -567,6 +567,8 @@ public class ObjectOperations {
         
     }
     
+    
+    
     public Map<Integer,Map<Object,Object>> getFileListFromDatabase(CrudObject crudObject,CrudTable crudTable,String idFieldName,int id,RequestObject requestObject) throws ClassNotFoundException, SQLException, IOException, ParseException {
         
         Map<Integer,Map<Object,Object>> rows = new LinkedHashMap<>();
@@ -601,6 +603,7 @@ public class ObjectOperations {
                     var dataSet_file_data = new DataConnector(this.crudModule.getGlobalEnvs(),crudModule.getUsername())
                                                             .getTable("npt_files")
                                                             .select()
+                                                                .getColumn("id")
                                                                 .getColumn("orig_name")
                                                                 .getColumn("file_size")
                                                             .where()
@@ -612,19 +615,38 @@ public class ObjectOperations {
                         
                             String orig_name = dataSet_file_data.getString("orig_name");
                             String file_size = String.valueOf(dataSet_file_data.getLong("file_size"));
+                            String file_id = String.valueOf(dataSet_file_data.getInteger("id"));
                                                        
                             
                             var columns = new LinkedHashMap<>();
                             columns.put(columns.size(), index);
                             columns.put(columns.size(), orig_name);
                             columns.put(columns.size(), file_size);
+                                                      
                             
-                            var button_view = new NCodeButtons().createButton(
+                            
+                            var button_view = new NCodeButtons().createLink(
                                                                    "View", 
-                                                                   "module=crud&action=showfiles&obj=" 
+                                                                   "module=files&action=viewfile&obj=" 
                                                                            + crudObject.getName() 
-                                                                           + "&row_id=" 
-                                                                           + idFieldName
+                                                                           + "&file_id=" + file_id
+                                                                           + "&filesfieldname=" + (String)requestObject.getParams().get("filesfieldname"), 
+                                                                   "default", 
+                                                                   false, 
+                                                                   "fa fa-files-o",
+                                                                   "modal-md"
+                                                                  );     
+                            Map<Integer,Map<String,Object>> linksInTable = new LinkedHashMap<>();
+                            Map<String,Object> linksContainer = new LinkedHashMap<>();
+                            linksInTable.put(1, button_view);                             
+                            linksContainer.put("links", linksInTable);
+                            
+                            var button_delete = new NCodeButtons().createButton(
+                                                                   "Delete", 
+                                                                   "module=files&action=deletefile&obj=" 
+                                                                           + crudObject.getName() 
+                                                                           + "&row_id=" + id                                                                           
+                                                                           + "&file_id=" + file_id
                                                                            + "&filesfieldname=" + (String)requestObject.getParams().get("filesfieldname"), 
                                                                    "default", 
                                                                    false, 
@@ -632,11 +654,13 @@ public class ObjectOperations {
                                                                    "modal-md"
                                                                   );     
                             Map<Integer,Map<String,Object>> buttonsInTable = new LinkedHashMap<>();
-                            Map<String,Object> buttonContainer = new LinkedHashMap<>();
-                            buttonsInTable.put(1, button_view);                             
-                            buttonContainer.put("buttons", buttonsInTable);
+                            Map<String,Object> buttonsContainer = new LinkedHashMap<>();
+                            buttonsInTable.put(1, button_delete);                             
+                            buttonsContainer.put("buttons", buttonsInTable);                              
                            
-                            columns.put(columns.size(), buttonContainer);
+                            columns.put(columns.size(), linksContainer);
+                            columns.put(columns.size(), buttonsContainer);
+                            
                             
                             rows.put(rows.size(), columns);
                             index++;
@@ -1178,7 +1202,7 @@ public String getExternalFieldValueById (CrudField crudfield,int value,DataConne
                                             fieldOptions.put("name", field.getFieldKey());
                                             fieldOptions.put("datatype", "external");
                                             fieldOptions.put("values",field.getExternal());
-                                            fieldOptions.put("selected", field.getDefaultVaue());
+                                            fieldOptions.put("selected", field.getDefaultValue());
 
                                     } else if (field.isExternal() && !field.isExternalForCreate()) {
 

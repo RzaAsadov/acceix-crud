@@ -1,0 +1,47 @@
+{
+  "objectType": "table",
+  "name": "telegram_edited_messages",
+  "title": "Telegram edited messages",
+  "tables": {
+    "npt_telegram_edited_messages": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "ch_id": {
+          "displayName": "Channel",
+          "externalObject" : "telegram_channels",
+          "externalGetField" : "ch_name"
+        },
+        "message": {
+          "displayName": "Message"
+        },
+        "image_url": {
+          "displayName": "Image url",
+          "isViewable" : false
+        },
+        "edit_time": {
+          "displayName": "Edit time"
+        }
+      }
+    }
+  },
+  "roleCreate": "telegram",
+  "roleRead": "telegram",
+  "roleUpdate": "telegram",
+  "roleDelete": "telegram",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "metadata": {
+    "pagetitle": "Telegram edited messages",
+    "pageLength": "100",
+    "editButtonInTable": true
+  }
+}

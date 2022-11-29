@@ -13,7 +13,7 @@
     "roleDelete" : "netondoadmin",
     "tables": {
 
-        "domains": {
+        "npt_domains": {
 
             "id-field": {
               "id" : "id"

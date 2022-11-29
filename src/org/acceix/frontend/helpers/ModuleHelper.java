@@ -218,7 +218,6 @@ public abstract class ModuleHelper {
                     
                         List<String> roles = new LinkedList<>();
                         
-                        //MachineDataSet machineDataSet = getDatabaseAdminFunctions().getAllRoleList();
                         
                         getDatabaseAdminFunctions().getAllRoleList().forEach( (RoleModel rolemodel) -> {
                             roles.add(rolemodel.getRolename());
@@ -231,6 +230,7 @@ public abstract class ModuleHelper {
                         setGroupId(0);
                         setRolesetId(0);
                         setUsername((String)getGlobalEnvs().get("admin_user"));
+                        setDomain((String)getGlobalEnvs().get("admin_domain"));
                         
 
                         
@@ -258,7 +258,6 @@ public abstract class ModuleHelper {
         }
         
         public String getRequestedDomain() {
-            //String requestedHostname = getHttpServletRequest().getRequestURL().toString().replace(getHttpServletRequest().getRequestURI(), "");
             String requestedHostname = getHttpServletRequest().getServerName();
             return requestedHostname;
         }

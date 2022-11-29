@@ -1,0 +1,74 @@
+{
+  "objectType": "table",
+  "name": "telegram_messages_out",
+  "title": "Telegram messages outbox",
+    "tables": {
+    "npt_telegram_messages_out": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "ch_id": {
+          "displayName": "Channel",
+          "externalObject" : "telegram_channels",
+          "externalGetField" : "ch_name"
+        },
+        "messages": {
+          "displayName": "Message",
+          "isViewable" : false
+        },
+        "image_url": {
+          "displayName": "Image url",
+          "isViewable" : false
+        },
+        "expire_at": {
+          "displayName": "Expire at",
+          "isViewable" : false,
+          "isCreatable" : false,
+          "isEditable" : false,
+          "format" : "dd/MM/yyyy HH:mm:ss"
+        },
+        "send_at": {
+          "displayName": "Send at",
+          "isViewable" : false,
+          "isCreatable" : false,
+          "isEditable" : false,
+          "format" : "dd/MM/yyyy HH:mm:ss"
+        },
+        "is_edited": {
+          "displayName": "Is edited",
+          "isEditable" : false,
+          "isCreatable" : false
+        },
+        "create_at": {
+          "displayName": "Create at",
+          "isEditable" : false,
+          "isCreatable" : false
+        },
+        "edited_at": {
+          "displayName": "Edited at",
+          "isEditable" : false,
+          "isCreatable" : false
+        }
+      }
+    }
+  },
+  "roleCreate": "telegram",
+  "roleRead": "telegram",
+  "roleUpdate": "telegram",
+  "roleDelete": "telegram",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "metadata": {
+    "pagetitle": "Telegram messages outbox",
+    "pageLength": "100",
+    "editButtonInTable": true
+  }
+}

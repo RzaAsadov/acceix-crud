@@ -12,7 +12,7 @@
   "requireAuth": true,
 
   "tables": {
-    "menu_categories": {
+    "npt_menu_categories": {
       "id-field": {
         "id": "id"
       },
@@ -21,9 +21,7 @@
         "domain_id": {
           "displayName" : "Domain",
           "externalObject" : "domains",
-          "externalTable" : "domains",
-          "externalGetField" : "domain",
-          "externalJoinField" : "id"
+          "externalGetField" : "domain"
         },                 
         "name": {
           "displayName" : "Name"

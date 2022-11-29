@@ -11,7 +11,7 @@
   "editable": true,
   "requireAuth": true,
   "tables": {
-    "groups": {
+    "npt_groups": {
       "id-field": {
         "id": "id"
       },

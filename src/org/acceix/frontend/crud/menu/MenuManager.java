@@ -82,7 +82,7 @@ public class MenuManager {
                 
                 MachineDataSet machineDataSet_menu_categories = 
                                                 new DataConnector(getGlobalEnvs(),getUsername())
-                                                              .getTable("menu_categories")
+                                                              .getTable("npt_menu_categories")
                                                               .select()
                                                                   .getColumn("id")
                                                                   .getColumn("name")
@@ -108,7 +108,7 @@ public class MenuManager {
                     menuCategory.put("menu_category_name", menu_category_name);
                     menuCategory.put("menu_category_icon", menu_category_icon);
                     
-                    MachineDataSet machineDataSet_menu_items = new DataConnector(getGlobalEnvs(),getUsername()).getTable("menu_items")
+                    MachineDataSet machineDataSet_menu_items = new DataConnector(getGlobalEnvs(),getUsername()).getTable("npt_menu_items")
                                                                         .select()
                                                                             .getColumn("name")
                                                                             .getColumn("role_id")

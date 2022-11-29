@@ -1,0 +1,54 @@
+{
+  "objectType": "table",
+  "name": "telegram_messages_in",
+  "title": "Telegram received messages",
+  "tables": {
+    "npt_telegram_messages_in": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "ch_id": {
+          "displayName": "Channel",
+          "externalGetField" : "ch_name"
+        },
+        "message": {
+          "displayName": "Message"
+        },
+        "image_id": {
+          "displayName": "Image id"
+        },
+        "sender_id": {
+          "displayName": "Sender id"
+        },
+        "sender_display_name": {
+          "displayName": "Sender display name"
+        },
+        "received_tg_at": {
+          "displayName": "Received TG at"
+        },
+        "received_at": {
+          "displayName": "Received SRV at"
+        }
+      }
+    }
+  },
+  "roleCreate": "telegram",
+  "roleRead": "telegram",
+  "roleUpdate": "telegram",
+  "roleDelete": "telegram",
+  "creatable": false,
+  "editable": false,
+  "requireAuth": true,
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "metadata": {
+    "pagetitle": "Telegram received messages",
+    "pageLength": "100",
+    "editButtonInTable": true
+  }
+}

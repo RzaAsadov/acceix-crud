@@ -42,6 +42,11 @@ import org.acceix.ndatabaseclient.MachineDataSet;
  */
 public class CrudField {
     
+        public static int DOCUMENT_SECURITY_PRIVATE=1;
+        public static int DOCUMENT_SECURITY_PUBLIC=2;
+        public static int DOCUMENT_SECURITY_VIEWONCE=3;
+        
+    
         private Map<String,Object> globalEnvs;
         
         private String username;
@@ -71,11 +76,22 @@ public class CrudField {
         private boolean crypted;
 
         
+        private int fileStatus=0;
+        
+        private long maxFileCount=0;
+        private long minFileCount=0;
+        
+        private int maxSize=0;
+        
+        private String keepSize="o";
+        
+        
         private String statementRead;
         private String statementCreate;
         private String statementUpdate;
         private boolean external;
         private boolean externalForCreate;
+        private boolean externalNoChoiceOption;
         private String externalObject;
         private String externalTable;
         private String externalGetField;
@@ -190,6 +206,59 @@ public class CrudField {
             return path;
         }
 
+        public int getFileStatus() {
+            return fileStatus;
+        }
+
+        public void setFileStatus(String fileStatus) {
+            if (fileStatus.equals("private"))
+                this.fileStatus = 1;
+            else if (fileStatus.equals("public"))
+                this.fileStatus = 2;
+            else if (fileStatus.equals("viewonce"))
+                this.fileStatus = 3;
+        }
+
+        public void setMaxFileCount(long maxFileCount) {
+            this.maxFileCount = maxFileCount;
+        }
+
+        public long getMaxFileCount() {
+            return maxFileCount;
+        }
+        
+        
+
+        public void setMinFileCount(long minFileCount) {
+            this.minFileCount = minFileCount;
+        }
+
+        public long getMinFileCount() {
+            return minFileCount;
+        }
+
+        
+
+        public void setMaxSize(int maxSize) {
+            this.maxSize = maxSize;
+        }
+
+        public int getMaxSize() {
+            return maxSize;
+        }
+
+
+        
+        public void setKeepSize(String keepSize) {
+            this.keepSize = keepSize;
+        }
+
+        public String getKeepSize() {
+            return keepSize;
+        }
+
+
+
         public boolean isUseForAdd() {
             return useForAdd;
         }
@@ -234,7 +303,7 @@ public class CrudField {
             return dataType;
         }
 
-        public Object getDefaultVaue() {
+        public Object getDefaultValue() {
             return defaultVaue;
         }
 
@@ -313,10 +382,21 @@ public class CrudField {
         public void setExternalForCreate(boolean externalForCreate) {
             this.externalForCreate = externalForCreate;
         }
-
+        
         public boolean isExternalForCreate() {
             return externalForCreate;
+        }        
+
+        public void setExternalNoChoiceOption(boolean externalNoChoiceOption) {
+            this.externalNoChoiceOption = externalNoChoiceOption;
         }
+
+        public boolean isExternalNoChoiceOption() {
+            return externalNoChoiceOption;
+        }
+
+
+
 
 
         public void setExternalFieldDataType(int externalFieldDataType) {
@@ -635,53 +715,71 @@ public class CrudField {
                                     
                                     
                                     
+                                    ////// Add 'NO CHOICE' option if needed /////
+                                    
+                                    if (isExternalNoChoiceOption()) {
+                                        
+                                            externalValues.put(String.valueOf(0),"---------");
+
+                                    }                                    
+                                    
+                                    ///////////////////////////////////////////////////////////////////////////////////
+                                    
+                                    
+                                    
+                                    
                                     while (machineDataSet.next()) {
                                         
-                                        if (externalFieldDataType==DataTypes.TYPE_STRING) {
-                                            
-                                                switch (joinFieldDatatype) {
-                                                    case DataTypes.TYPE_INT:
-                                                        externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),machineDataSet.getString(getExternalGetField()));
-                                                        break;
-                                                    case DataTypes.TYPE_LONG:
-                                                        externalValues.put(String.valueOf(machineDataSet.getLong(getExternalJoinField())),machineDataSet.getString(getExternalGetField()));
-                                                        break;
-                                                    default:
-                                                        externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),machineDataSet.getString(getExternalGetField()));
-                                                        break;
-                                                }
-                                            
-                                        } else if (externalFieldDataType==DataTypes.TYPE_INT) {
-                                            
-                                                switch (joinFieldDatatype) {
-                                                    case DataTypes.TYPE_INT:
-                                                        externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getInteger(getExternalGetField())));
-                                                        break;
-                                                    case DataTypes.TYPE_LONG:
-                                                        externalValues.put(String.valueOf(machineDataSet.getLong(getExternalJoinField())),String.valueOf(machineDataSet.getInteger(getExternalGetField())));
-                                                        break;
-                                                    default:
-                                                        externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getInteger(getExternalGetField())));
-                                                        break;
-                                                } 
-                                                
-                                        } else if (externalFieldDataType==DataTypes.TYPE_DOUBLE) {
-                                            
-                                                switch (joinFieldDatatype) {
-                                                    case DataTypes.TYPE_INT:
-                                                        externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getDouble(getExternalGetField())));
-                                                        break;
-                                                    case DataTypes.TYPE_LONG:
-                                                        externalValues.put(String.valueOf(machineDataSet.getLong(getExternalJoinField())),String.valueOf(machineDataSet.getDouble(getExternalGetField())));
-                                                        break;
-                                                    default:
-                                                        externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getDouble(getExternalGetField())));
-                                                        break;
-                                                } 
-                                                
-                                        }
+                                            if (externalFieldDataType==DataTypes.TYPE_STRING) {
+
+                                                    switch (joinFieldDatatype) {
+                                                        case DataTypes.TYPE_INT:
+                                                            externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),machineDataSet.getString(getExternalGetField()));
+                                                            break;
+                                                        case DataTypes.TYPE_LONG:
+                                                            externalValues.put(String.valueOf(machineDataSet.getLong(getExternalJoinField())),machineDataSet.getString(getExternalGetField()));
+                                                            break;
+                                                        default:
+                                                            externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),machineDataSet.getString(getExternalGetField()));
+                                                            break;
+                                                    }
+
+                                            } else if (externalFieldDataType==DataTypes.TYPE_INT) {
+
+                                                    switch (joinFieldDatatype) {
+                                                        case DataTypes.TYPE_INT:
+                                                            externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getInteger(getExternalGetField())));
+                                                            break;
+                                                        case DataTypes.TYPE_LONG:
+                                                            externalValues.put(String.valueOf(machineDataSet.getLong(getExternalJoinField())),String.valueOf(machineDataSet.getInteger(getExternalGetField())));
+                                                            break;
+                                                        default:
+                                                            externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getInteger(getExternalGetField())));
+                                                            break;
+                                                    } 
+
+                                            } else if (externalFieldDataType==DataTypes.TYPE_DOUBLE) {
+
+                                                    switch (joinFieldDatatype) {
+                                                        case DataTypes.TYPE_INT:
+                                                            externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getDouble(getExternalGetField())));
+                                                            break;
+                                                        case DataTypes.TYPE_LONG:
+                                                            externalValues.put(String.valueOf(machineDataSet.getLong(getExternalJoinField())),String.valueOf(machineDataSet.getDouble(getExternalGetField())));
+                                                            break;
+                                                        default:
+                                                            externalValues.put(String.valueOf(machineDataSet.getInteger(getExternalJoinField())),String.valueOf(machineDataSet.getDouble(getExternalGetField())));
+                                                            break;
+                                                    } 
+
+                                            }
                                         
                                     }
+                                    
+                                    
+                                    
+
+                                    
                                     
                                     return externalValues;
         

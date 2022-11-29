@@ -888,7 +888,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
 
             //System.out.println("we have: " + inputValues.size() + " real is:" + inputSize);
             
-            if (inputValues.size() != inputSize) {
+            if (inputValues.size() < inputSize) {
                 
                     NLogger.logger(NLogBlock.WEB_CRUD,NLog.ERROR,getModuleName(),"crud",getUsername(), "Missing input params for Function \"" + functionAction + "\"");
                     addToDataModel("message","missing input values!");

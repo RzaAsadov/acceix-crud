@@ -1,0 +1,38 @@
+{
+  "objectType": "table",
+  "name": "telegram_channel_types",
+  "title": "Telegram channel types",
+  "tables": {
+    "npt_telegam_channel_types": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "a_val": {
+          "displayName": "A val"
+        },
+        "nicename": {
+          "displayName": "Nicename"
+        }
+      }
+    }
+  },
+  "roleCreate": "telegram",
+  "roleRead": "telegram",
+  "roleUpdate": "telegram",
+  "roleDelete": "telegram",
+  "creatable": false,
+  "editable": false,
+  "requireAuth": true,
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "metadata": {
+    "pagetitle": "Telegram channel types",
+    "pageLength": "100",
+    "editButtonInTable": true
+  }
+}

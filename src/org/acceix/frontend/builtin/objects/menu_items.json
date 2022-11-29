@@ -11,7 +11,7 @@
   "editable": true,
   "requireAuth": true,
   "tables": {
-    "menu_items": {
+    "npt_menu_items": {
       "id-field": {
         "id": "id"
       },
@@ -20,9 +20,13 @@
           "displayName" : "Category",
           "useExternalForCreate": true, 
           "externalObject" : "menu_categories",
-          "externalTable" : "menu_categories",
-          "externalGetField" : "name", 
-          "externalJoinField" : "id"
+          "externalGetField" : "name"
+        },
+        "sub_cat" : {
+          "displayName" : "Sub category",
+          "externalObject" : "menu_subs",
+          "externalGetField" : "name",
+          "externalNoChoiceOption" : true                     
         },
         "name": {
           "displayName" : "Name"
@@ -31,9 +35,7 @@
           "displayName" : "Role",
           "useExternalForCreate": true, 
           "externalObject" : "rolelist",
-          "externalTable" : "rolelist",
-          "externalGetField" : "roledesc", 
-          "externalJoinField" : "id"
+          "externalGetField" : "roledesc"
         },
         "link": {
           "displayName" : "Link",

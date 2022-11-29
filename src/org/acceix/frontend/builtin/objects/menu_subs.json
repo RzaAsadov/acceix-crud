@@ -1,0 +1,45 @@
+{
+  "objectType": "table",
+  "name": "menu_subs",
+  "title": "Menu sub categories",
+  "tables": {
+    "npt_menu_subs": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "cat_id": {
+          "displayName": "Category",
+          "externalObject" : "menu_categories",
+          "externalGetField" : "name"
+        },
+        "name": {
+          "displayName": "Sub category name"
+        },
+        "role_id": {
+          "displayName": "Role id",
+          "externalObject" : "rolelist",
+          "externalGetField" : "roledesc"          
+        }
+      }
+    }
+  },
+  "roleCreate": "usermgr",
+  "roleRead": "usermgr",
+  "roleUpdate": "usermgr",
+  "roleDelete": "usermgr",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "metadata": {
+    "pagetitle": "Menu sub categories",
+    "pageLength": "100",
+    "editButtonInTable": true
+  }
+}

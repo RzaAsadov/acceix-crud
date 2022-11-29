@@ -45,6 +45,17 @@ public class NCodeButtons {
                         return buttonresp;
                         
         }
-    
+        
+        public Map<String,Object> createLink (String name,String url,String color,boolean isConfirmNeeded, String icon, String container) {
+                        Map<String,Object> buttonresp = new LinkedHashMap<>();
+                        buttonresp.put("name", name);
+                        buttonresp.put("url", url);
+                        buttonresp.put("color", color);
+                        buttonresp.put("askconfirm", isConfirmNeeded);
+                        buttonresp.put("icon", icon);
+                        buttonresp.put("container", container);
+
+                        return buttonresp;
+        }
     
 }

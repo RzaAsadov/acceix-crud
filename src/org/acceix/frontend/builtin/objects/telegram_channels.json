@@ -1,0 +1,56 @@
+{
+  "objectType": "table",
+  "name": "telegram_channels",
+  "title": "Telegram channels",
+  "tables": {
+    "npt_telegram_channels": {
+      "id-field": {
+        "id": "id"
+      },
+      "fields": {
+        "ch_name": {
+          "displayName": "Channel name"
+        },
+        "handler_id" : {
+          "displayName" : "Handler",
+          "externalObject" : "telegram_handlers",
+          "externalGetField" : "nice_name"
+        },
+        "ch_id": {
+          "displayName": "Channel id",
+          "isEditable" : false,
+          "isViewable" : false
+        },
+        "ch_type" : {
+          "displayName" : "Channel type",
+          "externalObject" : "telegram_channel_types",
+          "externalGetField" : "nicename",
+           "externalJoinField" : "a_val"
+        },
+        "users_count": {
+          "displayName": "Users",
+          "isEditable" : false,
+          "isCreatable" : false
+        }
+      }
+    }
+  },
+  "roleCreate": "telegram",
+  "roleRead": "telegram",
+  "roleUpdate": "telegram",
+  "roleDelete": "telegram",
+  "creatable": true,
+  "editable": true,
+  "requireAuth": true,
+  "templateForCreate": "/defaultTemplates/createObjectData",
+  "templateForRead": "/defaultTemplates/readObjectData",
+  "templateForListRead": "/defaultTemplates/readListObjectData",
+  "templateForUpdate": "/defaultTemplates/updateObjectData",
+  "templateForDelete": "/defaultTemplates/deleteObjectData",
+  "templateForFilters": "/defaultTemplates/readObjectDataFilters",
+  "metadata": {
+    "pagetitle": "",
+    "pageLength": "100",
+    "editButtonInTable": true
+  }
+}
