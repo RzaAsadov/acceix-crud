@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,8 +55,8 @@ public class ActionSettings {
             this.name = name;
         }
         
-        public void setReference(ActionInterface actionFuncInterface) {
-            actionFuncInterface = actionFuncInterface;
+        public void setReference(ActionInterface t_actionFuncInterface) {
+            actionFuncInterface = t_actionFuncInterface;
         }
         
         public void runAction() {

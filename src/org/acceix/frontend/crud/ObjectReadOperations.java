@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,8 +30,8 @@ import org.acceix.frontend.crud.models.CrudFilterField;
 import org.acceix.frontend.crud.models.CrudTable;
 import org.acceix.frontend.crud.models.CrudObject;
 import org.acceix.frontend.helpers.ModuleHelper;
-import org.acceix.frontend.helpers.NCodeButtons;
-import org.acceix.ndatabaseclient.DataTypes;
+import org.acceix.frontend.helpers.ButtonsHelper;
+import org.acceix.ndatabaseclient.mysql.DataTypes;
 import org.acceix.frontend.helpers.RequestObject;
 import org.acceix.frontend.web.commons.DataUtils;
 import java.io.IOException;
@@ -50,12 +50,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.acceix.ndatabaseclient.MachineDataSet;
-import org.acceix.ndatabaseclient.DataComparable;
-import org.acceix.ndatabaseclient.DataConnector;
-import org.acceix.ndatabaseclient.DataDeletable;
-import org.acceix.ndatabaseclient.DataInsertable;
-import org.acceix.ndatabaseclient.DataSelectable;
+import org.acceix.ndatabaseclient.dataset.MachineDataSet;
+import org.acceix.ndatabaseclient.mysql.DataComparable;
+import org.acceix.ndatabaseclient.mysql.DataConnector;
+import org.acceix.ndatabaseclient.mysql.DataDeletable;
+import org.acceix.ndatabaseclient.mysql.DataInsertable;
+import org.acceix.ndatabaseclient.mysql.DataSelectable;
 import org.json.simple.parser.ParseException;
 
 
@@ -63,7 +63,7 @@ import org.json.simple.parser.ParseException;
  *
  * @author zrid
  */
-public class ObjectOperations {
+public class ObjectReadOperations {
     
     ModuleHelper crudModule;
     
@@ -71,318 +71,13 @@ public class ObjectOperations {
     
     DataConnector dataConnector = null;
 
-    public ObjectOperations(ModuleHelper crudModule) {
+    public ObjectReadOperations(ModuleHelper crudModule) {
         this.crudModule = crudModule;
         dataConnector = new DataConnector(this.crudModule.getGlobalEnvs(),true,crudModule.getUsername());
     }
     
-    public int createInList (CrudObject crudObject, CrudTable crudTable,Map<String,Object> inputParamsFromClient) throws SQLException, ClassNotFoundException {
-        
-                final Map<String,Object> inputParamsToBeInserted = new LinkedHashMap<>();
-                
-                inputParamsFromClient.entrySet()
-                                     .stream()
-                                     .filter((input) -> !(input.getKey().equals("obj"))).forEachOrdered((input) -> {
-                                    inputParamsToBeInserted.put(input.getKey(), input.getValue());
-                });
-                
-                DataInsertable dataInsertable = dataConnector.getTable(crudTable.getName()).insert();  
-
-                    
-                DataTypes dataTypes = new DataTypes();
-                                
-                for (var inputDataMap : inputParamsToBeInserted.entrySet() ) {
-                    
-                        CrudField crudField = crudTable.getField(inputDataMap.getKey());
-                        
-                        if (!crudField.isCreatable()) continue;
-                                                    
-                            dataInsertable = dataInsertable.add(crudField.getFieldName(), 
-                                                                dataTypes.convertByDataType(inputDataMap.getValue(),
-                                                                                                crudField.getDataType(), 
-                                                                                               crudField.getFormat())); 
 
 
-                }
-                
-                dataInsertable.setDebug(true);
-
-            return dataInsertable.compile()
-                                 .executeAndGetID();                
-                
-                    
-    }
-    
-    
-    
-    
-    public int prepareForCreate (CrudObject crudObject, CrudTable crudTable,Map<String,Object> inputParamsFromClient) throws SQLException, ClassNotFoundException, Exception {
-        
-        
-                final Map<String,Object> inputParamsToBeInserted = new LinkedHashMap<>();
- 
-                Map<String,Integer> tables_involved = new LinkedHashMap<>();
-                
-                for (Map.Entry<String,Object> paramField : inputParamsFromClient.entrySet()) {
-
-                    String paramInputField = paramField.getKey();
-                    
-                    
-                    if (paramInputField.equals("obj")) continue; // bypass object key
-
-                                        
-                    CrudField crudField = crudTable.getField(paramInputField);   
-                    
-                    if (crudField.isExternal()) {
-                    
-                            if (crudField.getExternalTable()==null) {
-                                
-                                    CrudObject fieldsExternalObject =  loader.get(crudField.getExternalObject());
-
-                                    if (fieldsExternalObject != null) {
-
-                                            CrudTable fieldsExternalTable = fieldsExternalObject.getDefaultCrudTable();
-
-                                            if (fieldsExternalTable != null) {
-                                                crudField.setExternalTable(fieldsExternalTable.getName());
-                                            } else {
-                                                throw new Exception("Something went wrong with field (External table not found): " + crudField.getFieldKey() + "->" + crudField.getExternalTable());
-                                            }
-                                    } else {
-                                            throw new Exception("Something went wrong with field (External object not found): " + crudField.getFieldKey() + "->" + crudField.getExternalObject());
-                                    }
-                                    
-                            }
-
-                            if (crudField.getExternalJoinField()==null) {
-                                
-                                crudField.setExternalJoinField(loader.get(crudField.getExternalObject())
-                                                                                .getDefaultCrudTable()
-                                                                                .getIdFieldName());
-                                
-                            }   
-                    }
-
-                    if (crudField.isExternal() && !crudField.isExternalForCreate()) {
-                        
-
-                                    Map<String,Object> external_inputParams = new LinkedHashMap<>();
-                                    external_inputParams.put(crudField.getExternalGetField(), (String)inputParamsFromClient.get(paramInputField));
-
-                                    int autoGeneratedId,effected_rows;
-
-                                    if (tables_involved.get(crudField.getExternalTable()) == null) { 
-                                            autoGeneratedId = createInDatabase(loader.get(crudField.getExternalObject())
-                                                                                            .getCrudTable(crudField.getExternalTable()),
-                                                                                            external_inputParams);
-
-                                            tables_involved.put(crudField.getExternalTable(),autoGeneratedId);
-                                            
-                                            if ( autoGeneratedId < 0 ) return -1; 
-                                            
-                                    } else { // if already inserted to same external table , then update date not insert
-
-                                            effected_rows = updateInDatabaseAndGetId(crudField.getExternalObject(), 
-                                                                                          crudField.getExternalTable(), 
-                                                                                          external_inputParams,
-                                                                                          tables_involved.get(crudField.getExternalTable()));
-
-                                            if (  effected_rows < 1 ) return -1;                                    
-                                    }
-
-                                    inputParamsToBeInserted.put(paramInputField,
-                                                                String.valueOf(tables_involved.get(crudField.getExternalTable())));
-                                
-
-                   } else {
-                        inputParamsToBeInserted.put(paramInputField, inputParamsFromClient.get(paramInputField));
-                   }
-                    
-                }
-                
-                return createInDatabase(crudTable, inputParamsToBeInserted);        
-    }
-    
-    
-    
-    public int createInDatabase(CrudTable t_crudTable,Map<String,Object> mapToAppend) throws SQLException, ClassNotFoundException {
-        
-
-                DataInsertable dataInsertable = dataConnector.getTable(t_crudTable.getName())
-                                                                    .insert();  
-
-
-                
-                    List<String> fieldsOfTable = new LinkedList(t_crudTable.getFieldList());
-
-                    fieldsOfTable.removeAll(new LinkedList<>(mapToAppend.keySet()));
-
-                    fieldsOfTable.forEach((var fieldOfTable) -> {
-                            if (t_crudTable.getField(fieldOfTable).getDefaultValue() != null) {
-                                    mapToAppend.put(fieldOfTable, t_crudTable.getField(fieldOfTable).getDefaultValue());
-                            }
-                    });
-                    
-                DataTypes dataTypes = new DataTypes();
-
-                                
-                for (var inputDataMap : mapToAppend.entrySet() ) {
-                    
-
-                        CrudField crudField = t_crudTable.getField(inputDataMap.getKey());
-
-                        if (!crudField.isCreatable() && crudField.getDefaultValue() == null) continue;
-                        
-                        if (inputDataMap.getValue()==null || String.valueOf(inputDataMap.getValue()).isEmpty()) { continue; };
-
-                        
-                        
-                        
-                            if (crudField.getDefaultValue() != null && crudField.getDefaultValue().equals("$user_id$")) {
-                                dataInsertable = dataInsertable.add(crudField.getFieldName(), 
-                                                                dataTypes.convertByDataType(String.valueOf(crudModule.getUserId()),
-                                                                                                DataTypes.TYPE_INT, 
-                                                                                               crudField.getFormat())); 
-                            } else {                       
-                                
-                                if (!crudField.isCrypted()) {
-
-                                    dataInsertable = dataInsertable.add(crudField.getFieldName(), 
-                                                                    dataTypes.convertByDataType(inputDataMap.getValue(),
-                                                                                                    crudField.getDataType(), 
-                                                                                                   crudField.getFormat()));
-                                    
-                                } else {
-                                    
-                                    MessageDigest md5 = null;
-                                    try {
-                                        md5 = MessageDigest.getInstance("MD5"); // you can change it to SHA1 if needed!
-                                    } catch (NoSuchAlgorithmException ex) {
-                                        Logger.getLogger(ObjectOperations.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                    md5.update(inputDataMap.getValue().toString().getBytes(), 0, inputDataMap.getValue().toString().length());
-
-                                    String crypted = new BigInteger(1, md5.digest()).toString(16);   
-                                    
-                                    dataInsertable = dataInsertable.add(crudField.getFieldName(), 
-                                                                    dataTypes.convertByDataType(crypted,
-                                                                                                    crudField.getDataType(), 
-                                                                                                   crudField.getFormat()));                                    
-                                    
-                                }
-                            }
-
-                }
-                
-                dataInsertable.setDebug(true);
-
-            return dataInsertable.compile()
-                                 .executeAndGetID();
-
-
-        
-
-    }
-    
-    public int deleteElementFromDatabase(CrudTable crudtable,int row_id) {
-        
-            String idFied;
-            if (crudtable.getListIdField().isEmpty()) {
-                idFied = crudtable.getIdFieldName();
-            } else {
-                idFied = crudtable.getListIdField();
-            }
-            
-
-            try {
-                DataDeletable dataDeletable = dataConnector.getTable(crudtable.getName())
-                                                                .delete();
-                        dataDeletable.setDebug(true);
-                        dataDeletable.where()
-                            .eq(idFied, row_id)
-                        .compile()
-                        .execute();
-            } catch (ClassNotFoundException | SQLException ex) {
-                Logger.getLogger(ObjectOperations.class.getName()).log(Level.SEVERE, null, ex);
-            }
-                                        
-
-        return 1;
-    }
-    
-    public int deleteListElementFromDatabase(CrudTable crudtable,int row_id) throws ClassNotFoundException, SQLException {
-        
-            String idField = crudtable.getIdFieldName();
-
-
-                new DataConnector(this.crudModule.getGlobalEnvs(),true,crudModule.getUsername())
-                        .getTable(crudtable.getName())
-                        .delete()
-                        .where()
-                            .eq(idField, row_id)
-                        .compile()
-                        .execute();
-
-                                        
-
-        return 1;
-    }   
-
-    public int updateInDatabaseAndGetId(String crudobject,String t_crudtable,Map<String,Object> mapToAppend,int row_id) {
-        
-        
-                var crudTable = loader.get(crudobject).getCrudTable(t_crudtable);
-        
-                var dataUpdateable = dataConnector.getTable(crudTable.getName()).update();  
-                
-                var dataTypes = new DataTypes();
-
-
-                    for (Map.Entry<String,Object> inputDataMap : mapToAppend.entrySet()) {
-
-                            var crudField = crudTable.getField(inputDataMap.getKey());
-                            
-                            if (crudField==null) { System.out.println("field: " + inputDataMap.getKey() + " is null in table " + t_crudtable + " = " + crudTable.getName()); }
-
-                            if ( String.valueOf(inputDataMap.getValue()).equals("") ) continue;
-                            
-                            if (crudField.isCrypted()) {
-                                
-                                MessageDigest md5 = null;
-                                try {
-                                    md5 = MessageDigest.getInstance("MD5"); // you can change it to SHA1 if needed!
-                                } catch (NoSuchAlgorithmException ex) {
-                                    Logger.getLogger(ObjectOperations.class.getName()).log(Level.SEVERE, null, ex);
-                                }
-                                md5.update(inputDataMap.getValue().toString().getBytes(), 0, inputDataMap.getValue().toString().length());
-                                
-                                String crypted = new BigInteger(1, md5.digest()).toString(16);
-                                
-                                dataUpdateable = dataUpdateable.update(inputDataMap.getKey(), dataTypes.convertByDataType(crypted, crudField.getDataType(), crudField.getFormat()));                                
-                                
-                                
-                            } else {
-
-                                dataUpdateable = dataUpdateable.update(inputDataMap.getKey(), dataTypes.convertByDataType(inputDataMap.getValue(), crudField.getDataType(), crudField.getFormat()));
-                                
-                            }
-
-                    }
-
-
-                    try {
-                        dataUpdateable.setDebug(true);
-                            return dataUpdateable.where()
-                                                    .eq(crudTable.getIdFieldName(), row_id)
-                                                 .compile()
-                                                 .execute();
-                    } catch (SQLException | ClassNotFoundException ex) {
-                        Logger.getLogger(CoreModule.class.getName()).log(Level.SEVERE, null, ex);
-                        return -1;
-                    } 
-        
-
-    }
     
 
     public Map<Integer,Map<Object,Object>> getListDataFromDatabase(CrudObject crudobject,CrudTable crudtable,String idFieldName,int id,RequestObject requestObject) throws Exception {
@@ -529,7 +224,7 @@ public class ObjectOperations {
                                     Map<String,Object> buttonContainer = new LinkedHashMap<>();
 
 
-                                        Map<String,Object> button_edit = new NCodeButtons().createButton("Remove", 
+                                        Map<String,Object> button_edit = new ButtonsHelper().createButton("Remove", 
                                                                           "module=crud&action=removeListElement&obj="
                                                                                   + crudobject.getName() 
                                                                                   + "&list_id=" 
@@ -625,7 +320,7 @@ public class ObjectOperations {
                                                       
                             
                             
-                            var button_view = new NCodeButtons().createLink(
+                            var button_view = new ButtonsHelper().createLink(
                                                                    "View", 
                                                                    "module=files&action=viewfile&obj=" 
                                                                            + crudObject.getName() 
@@ -641,7 +336,7 @@ public class ObjectOperations {
                             linksInTable.put(1, button_view);                             
                             linksContainer.put("links", linksInTable);
                             
-                            var button_delete = new NCodeButtons().createButton(
+                            var button_delete = new ButtonsHelper().createButton(
                                                                    "Delete", 
                                                                    "module=files&action=deletefile&obj=" 
                                                                            + crudObject.getName() 
@@ -689,30 +384,36 @@ public class ObjectOperations {
                         String files;
 
                         if (dataSet_files.next()) {
-                            files = dataSet_files.getString((String)requestObject.getParams().get("locationfieldname")); 
-                            if (files != null) {
-                                Map locationInfo = new DataUtils().readJsonObjectFromString(files);
-                            }
+                            
+                                    String cordinates_json_str = dataSet_files.getString((String)requestObject.getParams().get("locationfieldname"));
+                                    
+                                    if (cordinates_json_str.isEmpty()) {
+                                        cordinates_json_str = "0";
+                                    } else {
+                                        Map cordinates = new DataUtils().readJsonObjectFromString(cordinates_json_str);
+
+                                        fieldsMap.put("cordinates", cordinates);                                        
+                                    }
+
 
                         } else {
-
+                                    fieldsMap.put("cordinates", "0");
                         }
 
             
-                   DataConnector dataConnector = new DataConnector(this.crudModule.getGlobalEnvs(),true,crudModule.getUsername());
+                    DataConnector dataConnector = new DataConnector(this.crudModule.getGlobalEnvs(),true,crudModule.getUsername());
                    
 
 
-                        CrudField crudField = crudTable.getField((String)requestObject.getParams().get("locationfieldname"));
+                    CrudField crudField = crudTable.getField((String)requestObject.getParams().get("locationfieldname"));
                         
-                        System.out.println("Fieldname:" + crudField.getDefaultCountry() + " fff: " + requestObject.getParams().get("locationfieldname"));
 
                         
                     Map<String,Object> mapField = new LinkedHashMap<>();    
                         
                         mapField.put("apikey",crudField.getApiKey());
-                        mapField.put("defaultcountry",crudField.getDefaultCountry());
-                        mapField.put("defaultcity",crudField.getDefaultCity());
+                        mapField.put("defaultlat",crudField.getDefaultLat());
+                        mapField.put("defaultlong",crudField.getDefaultLong());
                         
                     
                     fieldsMap.put("mapfield", mapField);                       
@@ -725,99 +426,6 @@ public class ObjectOperations {
                         addressField.put("values", "");
 
                     fieldsMap.put("address", addressField);
-                    
-                    MachineDataSet machineDataSetOfCountryId = dataConnector.getTable("npt_countries")
-                                                                            .select()
-                                                                                .getColumn("id")
-                                                                            .where()
-                                                                                .eq("nicename",(String)requestObject.getParams().get("countryname"))
-                                                                            .compile()
-                                                                            .executeSelect();                
-                    
-                    MachineDataSet machineDataSetOfCityList = dataConnector.getTable("npt_cities")
-                                                                            .select()
-                                                                                .getColumn("id")
-                                                                                .getColumn("name")
-                                                                            .where()
-                                                                                .eq("country_id", machineDataSetOfCountryId.getFirstInt("id"))
-                                                                            .compile()
-                                                                            .executeSelect();
-
-                        Map<String,String> cityListFromDb = new LinkedHashMap<>();
-
-                        while (machineDataSetOfCityList.next()) {
-                              cityListFromDb.put(String.valueOf(machineDataSetOfCityList.getInteger("id")),machineDataSetOfCityList.getString("nicename"));
-                        }                     
-
-                    Map<String,Object> cityField = new LinkedHashMap<>();
-
-                        cityField.put("displayname", "City");
-                        cityField.put("name", "city");
-                        cityField.put("datatype", "external");
-                        cityField.put("values", cityListFromDb);
-                        cityField.put("selected", crudField.getDefaultCity());
-                        
-                    fieldsMap.put("cities", cityField); 
-                    
-                    
-                    // Add country list
-                    MachineDataSet machineDataSetOfCountryList = dataConnector.getTable("npt_countries")
-                                .select()
-                                    .getColumn("id")
-                                    .getColumn("nicename")
-                                .compile()
-                                .executeSelect();
-
-                        Map<String,String> countryListFromDb = new LinkedHashMap<>();
-
-                        while (machineDataSetOfCountryList.next()) {
-                              countryListFromDb.put(String.valueOf(machineDataSetOfCountryList.getInteger("id")),
-                                                                    machineDataSetOfCountryList.getString("nicename"));
-                        }                    
-
-                    Map<String,Object> countryField = new LinkedHashMap<>();
-
-                        countryField.put("displayname", "Country");
-                        countryField.put("name", "country");
-                        countryField.put("datatype", "external");
-                        countryField.put("values", countryListFromDb);
-                        countryField.put("selected", crudField.getDefaultCountry());
-                        
-                    fieldsMap.put("countries", countryField);
-                    /////
-                    
-                    Map<String,Object> fullAddressField = new LinkedHashMap<>();
-
-                        fullAddressField.put("displayname", "Full address");
-                        fullAddressField.put("name", "full_address");
-                        fullAddressField.put("datatype", "string");
-                        fullAddressField.put("values", "sfsfsfsfsffs fsdfsfsd 45/6");
-                        
-                    fieldsMap.put("full_address", fullAddressField);
-                    /////  
-                    
-                    Map<String,Object> area = new LinkedHashMap<>();
-                        area.put("displayname", "Area");
-                        area.put("name", "area");
-                        area.put("datatype", "string");
-                        area.put("values", "erwrwerwer");
-                        
-                    fieldsMap.put("area", area);
-                    ///// 
-                    
-                    Map<String,Object> latitute = new LinkedHashMap<>();
-                        latitute.put("name", "latitute");
-                        latitute.put("datatype", "hidden");
-                        latitute.put("values", "0");
-                    fieldsMap.put("latitute", latitute);
-                    /////  
-
-                    Map<String,Object> longitute = new LinkedHashMap<>();
-                        longitute.put("name", "longitute");
-                        longitute.put("datatype", "hidden");
-                        longitute.put("values", "0");
-                    fieldsMap.put("longitute", longitute);
-                    /////                      
                     
             
 
@@ -979,7 +587,7 @@ public class ObjectOperations {
                                
                             } 
                             
-                            var buttons = new NCodeButtons();
+                            var buttons = new ButtonsHelper();
                             
                             //////////////////////////////////////////// ADD EDIT BUTTONS /////////////////////////////////////////////////
                             if (crudobject.isEditable()) {
@@ -1057,7 +665,7 @@ public class ObjectOperations {
         
     }
      
-public String getExternalFieldValueById (CrudField crudfield,int value,DataConnector dataConnector) throws ClassNotFoundException, SQLException {
+    public String getExternalFieldValueById (CrudField crudfield,int value,DataConnector dataConnector) throws ClassNotFoundException, SQLException {
 
                             String externalTable = crudfield.getExternalTable();
                             String externalJoinField = crudfield.getExternalJoinField();
@@ -1180,422 +788,8 @@ public String getExternalFieldValueById (CrudField crudfield,int value,DataConne
 
        
     
-    
-    public Map<Integer, Object> getCreateModel(String t_crudobject,String t_crudtable) throws Exception {
-                
-                final Map<Integer, Object> fieldsMap = new LinkedHashMap<>();
-               
-                for (CrudField field : loader.get(t_crudobject)
-                              .getCrudTable(t_crudtable)
-                              .getFields() ) {
-                                  
-                                  
-                                    if (!field.isCreatable() || field.isListData()) continue; // Do not continue                                
 
 
-                                    Map<String,Object> fieldOptions = new LinkedHashMap<>();
-
-                                    fieldOptions.put("displayname", field.getDisplayName());
-
-                                    if (field.isExternal() && field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", "external");
-                                            fieldOptions.put("values",field.getExternal());
-                                            fieldOptions.put("selected", field.getDefaultValue());
-
-                                    } else if (field.isExternal() && !field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", field.getExternalFieldDataTypeAsString());
-
-                                    } else {
-                                        
-                                        if (field.getStatementCreate() == null) {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", field.getDataTypeAsString());
-
-                                            if (field.getDataType()==DataTypes.TYPE_ENUM) { 
-                                                fieldOptions.put("values",field.getEnumValues()); 
-                                            }
-                                            
-                                        } else {
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", "external");
-                                            fieldOptions.put("values",getCreateStatementValues(field));
-                                        }
-
-                                    }                        
-                                    fieldsMap.put(fieldsMap.size(), fieldOptions);
-                        
-                        
-                }
-                
-                return fieldsMap;
-        
-    }
-    
-    public Map<String, Object> getRowDataFromDatabaseById(CrudTable t_crudtable,String fieldName,String idFieldName,int row_id) throws ClassNotFoundException, SQLException {
-        return getRowDataFromDatabaseById(t_crudtable, fieldName, idFieldName,row_id,null);
-    }
-    
-    public Map<String, Object> getRowDataFromDatabaseById(CrudTable t_crudtable,String idFieldName,int row_id) throws ClassNotFoundException, SQLException {
-        return getRowDataFromDatabaseById(t_crudtable, null,idFieldName,row_id,null);
-    }
-
-    private Map<String, Object> getRowDataFromDatabaseById(CrudTable t_crudtable,String getFieldName,String idFieldName,int row_id,String addQuery) throws ClassNotFoundException, SQLException {
-
-                
-                Map<String,Object> rowData = new LinkedHashMap<>();
-                
-                DataSelectable nDataSelectable = dataConnector.getTable(t_crudtable.getName())
-                                                               .select();
-                
-                Collection<CrudField> fields;
-                
-                if (getFieldName != null) {
-                    
-                        CrudField singleField = t_crudtable.getField(getFieldName);
-                        fields = new ArrayList<>();
-                        fields.add(singleField);
-
-                } else {
-                    
-                        fields = t_crudtable.getFields();
-                    
-                }
-
-                   
-
-                for (CrudField field : fields) {
-                    nDataSelectable = nDataSelectable.getColumnAs(field.getFieldName(),field.getFieldKey());
-                }
-                
-                MachineDataSet machineDataSet = nDataSelectable
-                                                    .where()
-                                                        .eq(idFieldName, row_id)
-                                                    .compile()
-                                                    .executeSelect();
-
-                
-                while (machineDataSet.next()) {
-                    
-                    fields.forEach((field) -> {
-                                                
-                        if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_STRING) {
-                            rowData.put(field.getFieldKey(),machineDataSet.getString(field.getFieldKey()));    
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_INT) {  
-                            rowData.put(field.getFieldKey(),machineDataSet.getBigDecimal(field.getFieldKey()).toPlainString()); 
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_DOUBLE) {  
-                            rowData.put(field.getFieldKey(),String.valueOf(machineDataSet.getDouble(field.getFieldKey()))); 
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_BOOLEAN) {
-                            
-                            if (machineDataSet.getBoolean(field.getFieldKey())) {
-                                rowData.put(field.getFieldKey(),"on");
-                            } else {
-                                rowData.put(field.getFieldKey(),"off");
-                            }
-                            
-                        }  else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_TIMESTAMP) {
-                            
-                            rowData.put(field.getFieldKey(),
-                                    new SimpleDateFormat(field.getFormat())
-                                            .format(new Date(machineDataSet
-                                                    .getTimestamp(field.getFieldKey()).getTime())));
-                            
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_JSON) {
-                            
-                            rowData.put(field.getFieldKey(),String.valueOf(machineDataSet.getBytes(field.getFieldKey())));
-                            
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_DATE) {
-                            
-                            Date t_date =  machineDataSet.getDate(field.getFieldKey());
-                            
-                            if (t_date != null) {
-                                rowData.put(field.getFieldKey(),new SimpleDateFormat(field.getFormat()).format(t_date));
-                            } else {
-                                rowData.put(field.getFieldKey(),null);
-                            }
-                            
-                            
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_TIME) {
-                            
-                            rowData.put(field.getFieldKey(),machineDataSet.getTime(field.getFieldKey()).toString());
-                            
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_DATETIME) {
-                            
-                            Timestamp t_timestamp = machineDataSet.getTimestamp(field.getFieldKey());
-                            
-                            if (t_timestamp != null) {
-                                rowData.put(field.getFieldKey(),new SimpleDateFormat(field.getFormat()).format(new Date(t_timestamp.getTime())));
-                            } else {
-                                rowData.put(field.getFieldKey(),null);
-                            }
-                            
-                        } else if (machineDataSet.getColumnType(field.getFieldKey())==DataTypes.TYPE_ENUM) {
-                            
-                            rowData.put(field.getFieldKey(),machineDataSet.getEnum(field.getFieldKey()));
-                            
-                        }
-                    });
-                    
-                }
-                
-                
-
-        return rowData;
-        
-    }
-
-
-        public Map<Integer, Object> getFieldsForListUpdate(CrudTable t_crudtable, int row_id) throws ClassNotFoundException, SQLException, Exception {
-
-                
-                Map<String,Object> rowData = getRowDataFromDatabaseById(t_crudtable,t_crudtable.getListIdField(),row_id);
-                
-
-                final Map<Integer, Object> fieldsMap = new LinkedHashMap<>();    
-
-                for (CrudField field : t_crudtable.getFields()) {                                  
-                                    if (!field.isEditable()) continue;
-                                    if (field.isListData()) continue;
-
-                                    Map<String,Object> fieldOptions = new LinkedHashMap<>();
-
-                                    fieldOptions.put("displayname", field.getDisplayName());
-
-                                    if (field.isExternal() && field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", "external");
-                                            fieldOptions.put("values", field.getExternal());
-                                            fieldOptions.put("selected", rowData.get(field.getFieldName()));
-
-                                    } else if (field.isExternal() && !field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", field.getExternalFieldDataTypeAsString());
-
-                                            MachineDataSet machineDataSetOfExternalField = null;
-                                            try {
-                                                
-                                                 
-                                                
-                                                machineDataSetOfExternalField = new DataConnector(this.crudModule.getGlobalEnvs(),crudModule.getUsername())
-                                                                                                .getTable(field.getExternalTable())
-                                                                                                .select()
-                                                                                                    .getColumn(field.getExternalGetField())
-                                                                                                .where()
-                                                                                                    .eq(field.getExternalJoinField(), Integer.parseInt((String)rowData.get(field.getFieldKey())))
-                                                                                                .compile()
-                                                                                                .executeSelect();
-                                            } catch (ClassNotFoundException | SQLException ex) {
-                                                Logger.getLogger(ObjectOperations.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-
-                                            fieldOptions.put("values",machineDataSetOfExternalField.getFirstString(field.getExternalGetField()));
-
-                                    } else {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", field.getDataTypeAsString());
-
-
-                                            if (field.getDataType()==DataTypes.TYPE_ENUM) {
-                                                fieldOptions.put("values",field.getEnumValues());
-                                                fieldOptions.put("selected", rowData.get(field.getFieldName()));
-                                            } else {
-                                                fieldOptions.put("values", rowData.get(field.getFieldName()));
-                                            }
-
-                                    }                        
-                                    fieldsMap.put(fieldsMap.size(), fieldOptions);
-
-
-                 }
-                
-                                // add row_id field to field list
-                                Map<String,Object> row_id_field = new LinkedHashMap<>();
-                                                   row_id_field.put("name", "row_id");
-                                                   row_id_field.put("datatype", "hidden");
-                                                   row_id_field.put("values", row_id);
-                                                   
-                                fieldsMap.put(fieldsMap.size(), row_id_field);
-                
-                return fieldsMap;
-        
-    }  
-    
-    public Map<Integer, Object> getFieldForUpdateModel(CrudTable crudtable, int row_id) throws ClassNotFoundException, SQLException, Exception {
-        
-                
-                Map<String,Object> rowData = getRowDataFromDatabaseById(crudtable,crudtable.getIdFieldName(),row_id);
-
-                final Map<Integer, Object> fieldsMap = new LinkedHashMap<>();    
-
-                for (CrudField field : crudtable.getFields()) {
-                                  
-                                    if (!field.isEditable()) continue;
-                                    if (field.isListData()) continue;
-
-                                    Map<String,Object> fieldOptions = new LinkedHashMap<>();
-
-                                    fieldOptions.put("displayname", field.getDisplayName());
-
-                                    if (field.isExternal() && field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", "external");
-                                            fieldOptions.put("values", field.getExternal());
-                    
-                                            
-                                            fieldOptions.put("selected", rowData.get(field.getFieldKey()));
-
-                                    } else if (field.isExternal() && !field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", field.getExternalFieldDataTypeAsString());
-
-                                            try {
-                                                
-                                                MachineDataSet machineDataSetOfExternalField = new DataConnector(this.crudModule.getGlobalEnvs(),crudModule.getUsername())
-                                                                                                .getTable(field.getExternalTable())
-                                                                                                .select()
-                                                                                                    .setDebug(true)
-                                                                                                    .getColumn(field.getExternalGetField())
-                                                                                                .where()
-                                                                                                    .eq(field.getExternalJoinField(), Integer.parseInt((String)rowData.get(field.getFieldKey())))
-                                                                                                .compile()
-                                                                                                .executeSelect();
-                                                
-                                                fieldOptions.put("values",machineDataSetOfExternalField.getFirst(field.getExternalGetField()));                                                
-                                                
-                                            } catch (ClassNotFoundException | SQLException ex) {
-                                                Logger.getLogger(ObjectOperations.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-
-                                            
-
-                                    } else {
-                                        
-                                        if (field.getStatementUpdate() == null) {
-                                       
-
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", field.getDataTypeAsString());
-
-
-                                            if (field.getDataType()==DataTypes.TYPE_ENUM) {
-                                                fieldOptions.put("values",field.getEnumValues());
-                                                fieldOptions.put("selected", rowData.get(field.getFieldKey()));
-                                            } else {
-                                                if (field.isCrypted()) {
-                                                    fieldOptions.put("values", "[ crypted ]");
-                                                } else {
-                                                    fieldOptions.put("values", rowData.get(field.getFieldKey()));
-                                                }
-                                            }
-                                            
-                                        } else {
-                                            fieldOptions.put("name", field.getFieldKey());
-                                            fieldOptions.put("datatype", "external");
-                                            fieldOptions.put("values",getUpdateStatementValues(field));
-                                            fieldOptions.put("selected", rowData.get(field.getFieldKey()));
-
-                                        } 
-
-                                    }                        
-                                    fieldsMap.put(fieldsMap.size(), fieldOptions);
-
-
-                                }
-                
-                                // add row_id field to field list
-                                Map<String,Object> row_id_field = new LinkedHashMap<>();
-                                                   row_id_field.put("name", "row_id");
-                                                   row_id_field.put("datatype", "hidden");
-                                                   row_id_field.put("values", row_id);
-                                                   
-                                fieldsMap.put(fieldsMap.size(), row_id_field);
-                
-                return fieldsMap;
-        
-    }    
-
-    public Map<Integer, Object> getFieldsForListDataUpdate(CrudTable t_crudtable, int row_id) throws ClassNotFoundException, SQLException, Exception {
-       
-
-                Map<String,Object> rowData = getRowDataFromDatabaseById(t_crudtable,t_crudtable.getIdFieldName(),row_id);
-
-                final Map<Integer, Object> fieldsMap = new LinkedHashMap<>();    
-
-                for (CrudField field : t_crudtable.getFields()) {
-                                  
-                                    if (!field.isListData() || !field.isUseForAdd()) continue;
-
-                                    Map<String,Object> fieldOptions = new LinkedHashMap<>();
-
-                                    fieldOptions.put("displayname", field.getDisplayName());
-
-                                    if (field.isExternal() && field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldName());
-                                            fieldOptions.put("datatype", "external");
-                                            fieldOptions.put("values", field.getExternal());
-                                            fieldOptions.put("selected", rowData.get(field.getFieldName()));
-
-                                    } else if (field.isExternal() && !field.isExternalForCreate()) {
-
-                                            fieldOptions.put("name", field.getFieldName());
-                                            fieldOptions.put("datatype", field.getExternalFieldDataTypeAsString());
-
-                                            MachineDataSet machineDataSetOfExternalField = null;
-                                            try {
-                                                machineDataSetOfExternalField = new DataConnector(this.crudModule.getGlobalEnvs(),crudModule.getUsername())
-                                                                                                .getTable(field.getExternalTable())
-                                                                                                .select()
-                                                                                                    .getColumn(field.getExternalGetField())
-                                                                                                .where()
-                                                                                                    .eq(field.getExternalJoinField(), Integer.parseInt((String)rowData.get(field.getFieldName())))
-                                                                                                .compile()
-                                                                                                .executeSelect();
-                                            } catch (ClassNotFoundException | SQLException ex) {
-                                                Logger.getLogger(ObjectOperations.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-
-                                            fieldOptions.put("values",machineDataSetOfExternalField.getFirstString(field.getExternalGetField()));
-
-                                    } else {
-
-                                            fieldOptions.put("name", field.getFieldName());
-                                            fieldOptions.put("datatype", field.getDataTypeAsString());
-
-
-                                            if (field.getDataType()==DataTypes.TYPE_ENUM) {
-                                                fieldOptions.put("values",field.getEnumValues());
-                                                fieldOptions.put("selected", rowData.get(field.getFieldName()));
-                                            } else {
-                                                fieldOptions.put("values", rowData.get(field.getFieldName()));
-                                            }
-
-                                    }                        
-                                    fieldsMap.put(fieldsMap.size(), fieldOptions);
-
-
-                 }
-                
-                                // add row_id field to field list
-                                Map<String,Object> row_id_field = new LinkedHashMap<>();
-                                                   row_id_field.put("name", t_crudtable.getListIdField());
-                                                   row_id_field.put("datatype", "hidden");
-                                                   row_id_field.put("values", row_id);
-                                                   
-                                fieldsMap.put(fieldsMap.size(), row_id_field);
-                
-                return fieldsMap;
-        
-    }    
 
     
     public Map<String,Map<String,Object>> getFilterFields(String t_crudobject,String t_crudtable) throws Exception {
@@ -1651,87 +845,7 @@ public String getExternalFieldValueById (CrudField crudfield,int value,DataConne
 
 
 
-    public Map<String,String> getUpdateStatementValues (CrudField field) throws Exception {
-        
 
-                                    MachineDataSet machineDataSet = new DataConnector(this.crudModule.getGlobalEnvs(),crudModule.getUsername())
-                                                                            .executeQuery(field.getStatementUpdate());
-                                            
-                                    
-                                    Map<String,String> externalValues = new LinkedHashMap<>();
-
-
-                                    
-                                    
-                                    if (field.getFieldName()==null) {
-                                       throw new Exception("External Field \"" + field.getFieldName() + "\" is null");
-                                    }
-
-
-                                    int joinFieldDatatype = DataTypes.TYPE_INT;                                   
-                                    
-                                    while (machineDataSet.next()) {
-
-                                            switch (joinFieldDatatype) {
-                                                case DataTypes.TYPE_INT:
-                                                    externalValues.put(String.valueOf(machineDataSet.getInteger(field.getExternalJoinField())),machineDataSet.getString(field.getExternalGetField()));
-                                                    break;
-                                                case DataTypes.TYPE_LONG:
-                                                    externalValues.put(String.valueOf(machineDataSet.getLong(field.getExternalJoinField())),machineDataSet.getString(field.getExternalGetField()));
-                                                    break;
-                                                default:
-                                                    externalValues.put(String.valueOf(machineDataSet.getInteger(field.getExternalJoinField())),machineDataSet.getString(field.getExternalGetField()));
-                                                    break;
-                                            }
-                                        
-                                        
-                                    }
-                                    
-                                    return externalValues;
-        
-        
-    }
-    
-    public Map<String,String> getCreateStatementValues (CrudField field) throws Exception {
-        
-
-                                    MachineDataSet machineDataSet = new DataConnector(this.crudModule.getGlobalEnvs(),crudModule.getUsername())
-                                                                            .executeQuery(field.getStatementCreate());
-                                            
-                                    
-                                    Map<String,String> externalValues = new LinkedHashMap<>();
-
-
-                                    
-                                    
-                                    if (field.getFieldName()==null) {
-                                       throw new Exception("External Field \"" + field.getFieldName() + "\" is null");
-                                    }
-
-
-                                    int joinFieldDatatype = DataTypes.TYPE_INT;                                   
-                                    
-                                    while (machineDataSet.next()) {
-
-                                            switch (joinFieldDatatype) {
-                                                case DataTypes.TYPE_INT:
-                                                    externalValues.put(String.valueOf(machineDataSet.getInteger(field.getExternalJoinField())),machineDataSet.getString(field.getExternalGetField()));
-                                                    break;
-                                                case DataTypes.TYPE_LONG:
-                                                    externalValues.put(String.valueOf(machineDataSet.getLong(field.getExternalJoinField())),machineDataSet.getString(field.getExternalGetField()));
-                                                    break;
-                                                default:
-                                                    externalValues.put(String.valueOf(machineDataSet.getInteger(field.getExternalJoinField())),machineDataSet.getString(field.getExternalGetField()));
-                                                    break;
-                                            }
-                                        
-                                        
-                                    }
-                                    
-                                    return externalValues;
-        
-        
-    }
     
     
     

@@ -24,7 +24,7 @@
 
 package org.acceix.frontend.crud.loaders;
 
-import org.acceix.frontend.crud.models.CrudDbStored;
+import org.acceix.frontend.crud.models.CrudDbEvent;
 import org.acceix.frontend.database.AdminFunctions;
 import java.io.File;
 import java.io.IOException;
@@ -51,9 +51,9 @@ import org.acceix.logger.NLogger;
  *
  * @author zrid
  */
-public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStored> {
+public class DbEventsLoader extends LoaderHelper implements Container<CrudDbEvent> {
     
-    private static Map<String,CrudDbStored> containerMap = new LinkedHashMap<>();    
+    private static Map<String,CrudDbEvent> containerMap = new LinkedHashMap<>();    
 
     
     private static Map<String,Object> ENVS;
@@ -70,57 +70,57 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     
     
     @Override
-    public void load (File dbstoredFile) {
+    public void load (File dbeventFile) {
         
         last_error = "";
         
-        if (dbstoredFile==null) {
-            NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file  , it is NULL !");
+        if (dbeventFile==null) {
+            NLogger.logger(NLogBlock.DBEVENT,NLog.ERROR,"DbEventsLoader","load","system", "Unable to load Stored DB file  , it is NULL !");
         }
         
-        CrudDbStored crudDbStored = new CrudDbStored();
+        CrudDbEvent crudDbEvent = new CrudDbEvent();
         
 
         
-        if (dbstoredFile.exists()) {
-            if (dbstoredFile.isFile()) {
-                if (dbstoredFile.canRead()) {
+        if (dbeventFile.exists()) {
+            if (dbeventFile.isFile()) {
+                if (dbeventFile.canRead()) {
                     
-                    NLogger.logger(NLogBlock.DBSTORED,NLog.MESSAGE,"DbStoredLoader","load","system","Loading dbstored file ->" + dbstoredFile.getName());
+                    NLogger.logger(NLogBlock.DBEVENT,NLog.MESSAGE,"DbEventsLoader","load","system","Loading dbevent file ->" + dbeventFile.getName());
                     
-                    crudDbStored.setFilepath(dbstoredFile.getAbsolutePath());
-                    crudDbStored.setTimeModified(dbstoredFile.lastModified());
+                    crudDbEvent.setFilepath(dbeventFile.getAbsolutePath());
+                    crudDbEvent.setTimeModified(dbeventFile.lastModified());
                     
                     StringBuilder contentBuilder = new StringBuilder();
-                    try (Stream<String> stream = Files.lines( Paths.get(dbstoredFile.getPath()), StandardCharsets.UTF_8)) {
+                    try (Stream<String> stream = Files.lines( Paths.get(dbeventFile.getPath()), StandardCharsets.UTF_8)) {
                         stream.forEach(s -> contentBuilder.append(s).append("\n"));
                     } catch (IOException e) {
-                       NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system","Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , Exception message: " + e.getMessage());
+                       NLogger.logger(NLogBlock.DBEVENT,NLog.ERROR,"DbEventsLoader","load","system","Unable to load Stored DB file \"" + dbeventFile.getName() + "\" , Exception message: " + e.getMessage());
                     }
                     
-                    crudDbStored.setName(dbstoredFile.getName().split("\\.")[0]);
-                    crudDbStored.setContent(contentBuilder.toString());
+                    crudDbEvent.setName(dbeventFile.getName().split("\\.")[0]);
+                    crudDbEvent.setContent(contentBuilder.toString());
                 } else {
-                    NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not readable (permissions ?) !");
+                    NLogger.logger(NLogBlock.DBEVENT, NLog.ERROR,"DbEventsLoader","load","system", "Unable to load Stored DB file \"" + dbeventFile.getName() + "\" , it is not readable (permissions ?) !");
                 }
             } else {
-                NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not file !");
+                NLogger.logger(NLogBlock.DBEVENT, NLog.ERROR,"DbEventsLoader","load","system", "Unable to load Stored DB file \"" + dbeventFile.getName() + "\" , it is not file !");
             }
         } else {
-            NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not exists !");
+            NLogger.logger(NLogBlock.DBEVENT, NLog.ERROR,"DbEventsLoader","load","system", "Unable to load Stored DB file \"" + dbeventFile.getName() + "\" , it is not exists !");
         }
         
-       containerMap.put(crudDbStored.getName(), crudDbStored);
+       containerMap.put(crudDbEvent.getName(), crudDbEvent);
         
         AdminFunctions databaseAdminFunctions = new AdminFunctions(ENVS,"system");
 
-        if (!crudDbStored.getContent().isEmpty()) {
+        if (!crudDbEvent.getContent().isEmpty()) {
   
             try {
-                databaseAdminFunctions.executeStatement(crudDbStored.getContent());
+                databaseAdminFunctions.executeStatement(crudDbEvent.getContent());
             } catch (MachineDataException | ClassNotFoundException | SQLException ex) {
                 last_error = ex.getMessage();
-                Logger.getLogger(DbStoredLoader.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DbEventsLoader.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }       
@@ -129,12 +129,12 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     }
     
     @Override
-    public void add (CrudDbStored crudDbStored) {
+    public void add (CrudDbEvent crudDbEvent) {
         
-            containerMap.put(crudDbStored.getName(), crudDbStored);
+            containerMap.put(crudDbEvent.getName(), crudDbEvent);
 
                     try {
-                        new AdminFunctions(ENVS,"system").executeStatement(crudDbStored.getContent());
+                        new AdminFunctions(ENVS,"system").executeStatement(crudDbEvent.getContent());
                         
                     } catch (MachineDataException | ClassNotFoundException | SQLException ex) {
                         Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
@@ -142,26 +142,26 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     }    
     
     @Override
-    public  CrudDbStored get (String dbstored) {
-                return containerMap.get(dbstored);
+    public  CrudDbEvent get (String dbevent) {
+                return containerMap.get(dbevent);
     }
     
     @Override
-    public  List<CrudDbStored> getList() {
+    public  List<CrudDbEvent> getList() {
         
-                CrudDbStored[] db_stored = new CrudDbStored[containerMap.size()];
+                CrudDbEvent[] db_event = new CrudDbEvent[containerMap.size()];
                 
                 int index=0;
-                for (Map.Entry<String,CrudDbStored> entry : containerMap.entrySet()) {
-                    db_stored[index] = entry.getValue();
+                for (Map.Entry<String,CrudDbEvent> entry : containerMap.entrySet()) {
+                    db_event[index] = entry.getValue();
                     index++;
                 }
                 
 
-                Arrays.sort(db_stored, Comparator.comparingLong(CrudDbStored::getTimeModified).reversed());        
+                Arrays.sort(db_event, Comparator.comparingLong(CrudDbEvent::getTimeModified).reversed());        
                 
                 
-                return Arrays.asList(db_stored);
+                return Arrays.asList(db_event);
                 
     }    
  
@@ -171,11 +171,11 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
      public void loadAll(String path) {
         
         
-            var dbStoredPath = new File(path);
+            var dbEventPath = new File(path);
             
-            if (dbStoredPath.exists() && dbStoredPath.isDirectory()) {
+            if (dbEventPath.exists() && dbEventPath.isDirectory()) {
                 
-                File[] files = dbStoredPath.listFiles();
+                File[] files = dbEventPath.listFiles();
                 Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
                 
                 for (File objfile : files) {
@@ -191,7 +191,7 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
 
                 
             } else {
-                NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system","No dbstored folder on path: " + ENVS.get("dbstored_path"));
+                NLogger.logger(NLogBlock.DBEVENT,NLog.ERROR,"DbEventsLoader","load","system","No dbevent folder on path: " + ENVS.get("dbevent_path"));
             }
             
     }          

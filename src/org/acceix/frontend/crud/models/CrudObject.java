@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,7 +51,7 @@ public class CrudObject extends CrudElemental {
         
         private Object defaultValue = null;
 
-        private boolean creatable = false,editable = false,requireAuth = true;
+        private boolean creatable = false,editable = false,deletable = false,requireAuth = true;
 
 
         
@@ -279,7 +279,16 @@ public class CrudObject extends CrudElemental {
         public void setEditable(boolean editable) {
             this.editable = editable;
         }
-        
+
+        public boolean isDeletable() {
+            return deletable;
+        }
+
+        public void setDeletable(boolean deletable) {
+            this.deletable = deletable;
+        }
+
+
 
         public boolean isRequireAuth() {
             return requireAuth;

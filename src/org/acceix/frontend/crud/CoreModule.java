@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ import org.acceix.frontend.crud.models.CrudObject;
 import org.acceix.frontend.crud.models.CrudTable;
 import org.acceix.frontend.helpers.ActionSettings;
 import org.acceix.frontend.helpers.ModuleHelper;
-import org.acceix.ndatabaseclient.DataTypes;
+import org.acceix.ndatabaseclient.mysql.DataTypes;
 import org.acceix.frontend.web.commons.DataUtils;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -43,8 +43,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.acceix.ndatabaseclient.MachineDataException;
-import org.acceix.ndatabaseclient.MachineDataSet;
+import org.acceix.ndatabaseclient.exceptions.MachineDataException;
+import org.acceix.ndatabaseclient.dataset.MachineDataSet;
 import org.acceix.logger.NLog;
 import org.acceix.logger.NLogBlock;
 import org.acceix.logger.NLogger;
@@ -64,7 +64,12 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
     
     private CrudObject crudObject;
     private CrudTable crudTable;   
-    private ObjectOperations crudOperations;
+    private ObjectCreateOperations crudCreateOperations;
+    private ObjectReadOperations crudReadOperations;
+    private ObjectUpdateOperations crudUpdateOperations;
+    private ObjectDeleteOperations crudDeleteOperations;
+    
+    private ObjectCommonOperations crudCommonOperations;
 
     @Override
     public ModuleHelper getInstance() {
@@ -104,7 +109,12 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
      
     public boolean setupAndChecks() {
         
-                crudOperations = new ObjectOperations(this);
+                crudCreateOperations = new ObjectCreateOperations(this);
+                crudReadOperations = new ObjectReadOperations(this);
+                crudUpdateOperations = new ObjectUpdateOperations(this);
+                crudDeleteOperations = new ObjectDeleteOperations(this);
+                
+                crudCommonOperations = new ObjectCommonOperations(this);
         
                 String obj = (String) getParameter("obj");
                 String table = (String) getParameter("table");
@@ -166,7 +176,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 Map<Integer, Object> fieldsForCreate = null;
                 try {
                     
-                    fieldsForCreate = crudOperations.getCreateModel(crudObject.getName(), crudTable.getName());
+                    fieldsForCreate = crudCreateOperations.getCreateModel(crudObject.getName(), crudTable.getName());
                     
                     if (fieldsForCreate==null) {
                         addToDataModel("message", "Unable to fetch create model !");
@@ -233,7 +243,6 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                     return fieldOptions;
                 }).forEachOrdered((fieldOptions) -> {
                     if (fieldOptions.get("datatype").equals("fixed")) { return; }
-                    System.out.println("INPUT: " + (String)fieldOptions.get("datatype"));
                     fieldsMap.put(fieldsMap.size(), fieldOptions);
                 });
 
@@ -283,7 +292,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 crudObject.setDomain(getDomain());
                 
                     try {
-                        addToDataModel("data", crudOperations.getListDataFromDatabase(crudObject,crudTable,crudTable.getListIdField(),
+                        addToDataModel("data", crudReadOperations.getListDataFromDatabase(crudObject,crudTable,crudTable.getListIdField(),
                                 Integer.valueOf(getParameterOrDefault("row_id","-1")),                
                                 getRequestObject()));
                     } catch (Exception ex) {
@@ -304,7 +313,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
 
                         Map<Integer,Object> fieldsForUpdate=null;
                         try {
-                            fieldsForUpdate = crudOperations.getFieldsForListDataUpdate(crudTable,
+                            fieldsForUpdate = crudUpdateOperations.getFieldsForListDataUpdate(crudTable,
                                                                                         Integer.parseInt(getParameterOrDefault("row_id","-1")));
                         } catch (Exception ex) {
                             addToDataModel("message",ex.getMessage());
@@ -357,7 +366,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 int row_id = Integer.parseInt((String)getParameterOrDefault("row_id", "-1"));
                 
                 try {
-                    crudOperations.deleteListElementFromDatabase(crudTable, row_id);
+                    crudDeleteOperations.deleteListElementFromDatabase(crudTable, row_id);
                     
                         List<String> headers = new LinkedList<>();
 
@@ -368,7 +377,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                         crudObject.setUser_id(getUserId());
                         crudObject.setDomain(getDomain());
 
-                        addToDataModel("data", crudOperations.getListDataFromDatabase(crudObject,
+                        addToDataModel("data", crudReadOperations.getListDataFromDatabase(crudObject,
                                                                                         crudTable,
                                                                                         crudTable.getListIdField(),
                                                                                         Integer.valueOf(getParameterOrDefault("list_id","-1")),
@@ -385,7 +394,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
 
                                     Map<Integer,Object> fieldsForUpdate=null;
                                     try {
-                                        fieldsForUpdate = crudOperations.getFieldsForListDataUpdate(crudTable,
+                                        fieldsForUpdate = crudUpdateOperations.getFieldsForListDataUpdate(crudTable,
                                                                                                     Integer.parseInt(getParameterOrDefault("row_id","-1")));
                                     } catch (ClassNotFoundException | SQLException ex) {
                                         addToDataModel("message",ex.getMessage());
@@ -457,7 +466,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 crudObject.setDomain(getDomain());
                 
                     try {
-                        addToDataModel("data", crudOperations.readDataFromDb(crudObject,
+                        addToDataModel("data", crudReadOperations.readDataFromDb(crudObject,
                                                                                     crudTable,
                                                                                     Integer.valueOf(getParameterOrDefault("row_id","-1")),                
                                                                                     getRequestObject()));
@@ -506,7 +515,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
 
                     try {
                         
-                            var filterFieldsMap = crudOperations.getFilterFields(crudObject.getName(),crudTable.getName());
+                            var filterFieldsMap = crudReadOperations.getFilterFields(crudObject.getName(),crudTable.getName());
 
                             if (filterFieldsMap.size() > 0)  addToDataModel("fields", filterFieldsMap);
                         
@@ -543,7 +552,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 
                 try {
                     
-                        var fieldsForListUpdate = crudOperations.getFieldsForListUpdate(crudTable,Integer.parseInt(getParameterOrDefault("row_id","-1")));
+                        var fieldsForListUpdate = crudUpdateOperations.getFieldsForListUpdate(crudTable,Integer.parseInt(getParameterOrDefault("row_id","-1")));
 
                         if (fieldsForListUpdate==null) {
                             addToDataModel("result", "error");
@@ -593,13 +602,14 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 
                 try {
                     
-                        var fieldsForUpdate = crudOperations.getFieldForUpdateModel(crudTable, Integer.parseInt(getParameterOrDefault("row_id","-1")));
+                        var fieldsForUpdate = crudUpdateOperations.getFieldsForUpdateModel(crudTable, Integer.parseInt(getParameterOrDefault("row_id","-1")));
 
                         if (fieldsForUpdate==null) {
                             addToDataModel("result", "error");
                             addToDataModel("message", "unable_to_get_data_from_database");
                         } else {
-                            addToDataModel("fields", fieldsForUpdate);                    
+                            addToDataModel("fields", fieldsForUpdate);  
+                            addToDataModel("isdeletable",crudObject.isDeletable());
                         }    
                     
                 } catch (Exception ex) {
@@ -638,7 +648,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 
                 int result;
                 try {
-                    result = crudOperations.createInList(crudObject, crudTable, inputParamsFromClient);
+                    result = crudCreateOperations.createInList(crudObject, crudTable, inputParamsFromClient);
                 } catch (SQLException | ClassNotFoundException ex) {
                     Logger.getLogger(CoreModule.class.getName()).log(Level.SEVERE, null, ex);
                     addToDataModel("message", ex.getMessage()); 
@@ -714,7 +724,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                                 external_inputParams.put(fieldToInsert, valueToInsert);
 
                                 
-                                int rowEffected = crudOperations.updateInDatabaseAndGetId(objectToInsert,
+                                int rowEffected = crudCommonOperations.updateInDatabaseAndGetId(objectToInsert,
                                                                                                 tableToInsert,
                                                                                                 external_inputParams,
                                                                                                 row_id );
@@ -733,7 +743,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 }
                 
                 if (t_inputParams.size() > 0)
-                    crudOperations.updateInDatabaseAndGetId(crudObject.getName(),crudTable.getName(), t_inputParams,row_id);       
+                    crudCommonOperations.updateInDatabaseAndGetId(crudObject.getName(),crudTable.getName(), t_inputParams,row_id);       
                 
                 addToDataModel("message","Data in object \"" + crudObject.getTitle()+ "\" updated !");
                 addToDataModel("result", "success");
@@ -758,7 +768,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 
                 int row_id = Integer.parseInt((String)getParameterOrDefault("row_id", "-1"));
                 
-                crudOperations.deleteElementFromDatabase(crudTable, row_id);
+                crudDeleteOperations.deleteElementFromDatabase(crudTable, row_id);
                 
 
                 addToDataModel("message","Data in object \"" + crudObject.getTitle()+ "\" Deleted !");
@@ -779,7 +789,7 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                 
                 int result;
                 try {
-                    result = crudOperations.prepareForCreate(crudObject, crudTable, inputParamsFromClient);
+                    result = crudCreateOperations.prepareForCreate(crudObject, crudTable, inputParamsFromClient);
                 } catch (Exception ex) {
                     Logger.getLogger(CoreModule.class.getName()).log(Level.SEVERE, null, ex);
                     addToDataModel("message", ex.getMessage()); 
@@ -1012,7 +1022,10 @@ public class CoreModule extends org.acceix.frontend.helpers.ModuleHelper {
                                     
                                     addToDataModel("corerequestjson", dataUtils.beautyfyJson(dataUtils.listToJsonString(getRequestObject().getRawInput())));
                                     renderData("/defaultTemplates/showFunctionData");
-                                } else {                        
+                                } else {     
+                                    if (sqlError!=null) {
+                                        Logger.getLogger(CoreModule.class.getName()).log(Level.SEVERE, null, sqlError);
+                                    }
                                     addToDataModel("data",result);
                                     renderData(crudFunction.getTemplateForResult());
                                 }

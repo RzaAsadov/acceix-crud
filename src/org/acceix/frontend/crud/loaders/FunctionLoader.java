@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.acceix.frontend.crud.interfaces.Container;
+import org.acceix.frontend.helpers.LoaderHelper;
 import org.acceix.logger.NLog;
 import org.acceix.logger.NLogBlock;
 import org.acceix.logger.NLogger;
@@ -48,7 +49,7 @@ import org.json.simple.parser.ParseException;
  *
  * @author zrid
  */
-public class FunctionLoader implements Container<CrudFunction> {
+public class FunctionLoader extends LoaderHelper implements Container<CrudFunction> {
     
     private static Map<String,CrudFunction> containerMap = new LinkedHashMap<>();
     

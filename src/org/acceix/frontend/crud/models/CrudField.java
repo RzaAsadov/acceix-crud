@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,17 @@
 package org.acceix.frontend.crud.models;
 
 import org.acceix.frontend.crud.loaders.ObjectLoader;
-import org.acceix.frontend.helpers.NCodeButtons;
+import org.acceix.frontend.helpers.ButtonsHelper;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
-import org.acceix.ndatabaseclient.DataTypes;
+import org.acceix.ndatabaseclient.mysql.DataTypes;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.acceix.ndatabaseclient.DataConnector;
-import org.acceix.ndatabaseclient.MachineDataSet;
+import org.acceix.frontend.web.commons.DataUtils;
+import org.acceix.ndatabaseclient.mysql.DataConnector;
+import org.acceix.ndatabaseclient.dataset.MachineDataSet;
 
 /**
  *
@@ -74,6 +75,10 @@ public class CrudField {
         private boolean useForAdd;
         
         private boolean crypted;
+        
+        public int FILE_PRIVATE=1;
+        public int FILE_PUBLIC=2;
+        public int FILE_VIEWCOUNT=3;
 
         
         private int fileStatus=0;
@@ -103,8 +108,8 @@ public class CrudField {
         private String fileFormat;
         private String path;
         private String apiKey;
-        private String defaultCountry;
-        private String defaultCity;
+        private String defaultLat;
+        private String defaultLong;
 
         
         private String displayName;
@@ -211,12 +216,19 @@ public class CrudField {
         }
 
         public void setFileStatus(String fileStatus) {
-            if (fileStatus.equals("private"))
-                this.fileStatus = 1;
-            else if (fileStatus.equals("public"))
-                this.fileStatus = 2;
-            else if (fileStatus.equals("viewonce"))
-                this.fileStatus = 3;
+            switch (fileStatus) {
+                case "private":
+                    this.fileStatus = FILE_PRIVATE;
+                    break;
+                case "public":
+                    this.fileStatus = FILE_PUBLIC;
+                    break;
+                case "viewonce":
+                    this.fileStatus = FILE_VIEWCOUNT;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void setMaxFileCount(long maxFileCount) {
@@ -515,20 +527,20 @@ public class CrudField {
             return apiKey;
         }
 
-        public void setDefaultCountry(String defaultCountry) {
-            this.defaultCountry = defaultCountry;
+        public void setDefaultLat(String defaultLat) {
+            this.defaultLat = defaultLat;
         }
 
-        public String getDefaultCountry() {
-            return defaultCountry;
+        public String getDefaultLat() {
+            return defaultLat;
         }
 
-        public void setDefaultCity(String defaultCity) {
-            this.defaultCity = defaultCity;
+        public void setDefaultLong(String defaulLong) {
+            this.defaultLong = defaultLong;
         }
 
-        public String getDefaultCity() {
-            return defaultCity;
+        public String getDefaultLong() {
+            return defaultLong;
         }
 
 
@@ -560,7 +572,15 @@ public class CrudField {
                     if (machineDataSet.getString(getFieldKey())==null) {
                         columns.put(index,"null");
                     } else {
-                        columns.put(index,machineDataSet.getString(getFieldKey()));
+
+                        String data_str = machineDataSet.getString(getFieldKey()); 
+                        /*int data_size = data_str.length();
+
+                        if (data_str.length() > 18) {
+                            data_str = "" + data_str.substring(0, 17) + "..." ;
+                        } */                       
+                        
+                        columns.put(index,data_str);
                     }
                 } else if (datatype==DataTypes.TYPE_INT) {
                     columns.put(index,machineDataSet.getInteger(getFieldKey()));
@@ -581,12 +601,30 @@ public class CrudField {
                         columns.put(index,new SimpleDateFormat(getFormat()).format(machineDataSet.getTimestamp(getFieldKey()).getTime()));
                     }
                 } else if (datatype==DataTypes.TYPE_JSON) {
-                    columns.put(index,String.valueOf(machineDataSet.getBytes(getFieldKey())));
+                    
+                    String data_str = String.valueOf(machineDataSet.getBytes(getFieldKey()));
+                    
+                    
+                    columns.put(index,data_str);
                 } else if (datatype==DataTypes.TYPE_DOCUMENT) {
                                      
+                    
+                        String field_val = machineDataSet.getString(getFieldKey());
+                        
+                        int field_element_size = 0;
+                        
+                        if (field_val != null && !field_val.isEmpty()) {
+                        
+                            List field_list_json_as_map = (List)new DataUtils().readJsonArrayFromString(field_val);
+                            
+                            if (field_list_json_as_map !=null) {
+                                field_element_size = field_list_json_as_map.size();
+                            }
+                        
+                        }
 
-                        var button_view = new NCodeButtons().createButton(
-                                                               "View", 
+                        var button_view = new ButtonsHelper().createButton(
+                                                               "View (" + field_element_size + ")" , 
                                                                "module=files&action=showfiles&obj=" 
                                                                        + crudObject.getName() 
                                                                        + "&row_id=" 
@@ -610,14 +648,13 @@ public class CrudField {
                 } else if (datatype==DataTypes.TYPE_LOCATION) {
                                      
 
-                        var button_view = new NCodeButtons().createButton(
-                                                               "View", 
+                        var button_view = new ButtonsHelper().createButton("View", 
                                                                "module=location&action=showlocation&obj=" 
                                                                        + crudObject.getName() 
                                                                        + "&row_id=" 
                                                                        + machineDataSet.getInteger(crudTable.getIdFieldName())
                                                                        + "&locationfieldname=" + getFieldKey()
-                                                                       + "&countryname=" + getDefaultCountry(), 
+                                                                       + "&countryname=" + getDefaultLat(), 
                                                                "default", 
                                                                false, 
                                                                "fa fa-location-arrow",

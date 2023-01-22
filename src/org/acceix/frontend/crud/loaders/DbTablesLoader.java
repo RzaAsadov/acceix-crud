@@ -24,7 +24,7 @@
 
 package org.acceix.frontend.crud.loaders;
 
-import org.acceix.frontend.crud.models.CrudDbStored;
+import org.acceix.frontend.crud.models.CrudDbTable;
 import org.acceix.frontend.database.AdminFunctions;
 import java.io.File;
 import java.io.IOException;
@@ -51,9 +51,9 @@ import org.acceix.logger.NLogger;
  *
  * @author zrid
  */
-public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStored> {
+public class DbTablesLoader extends LoaderHelper implements Container<CrudDbTable> {
     
-    private static Map<String,CrudDbStored> containerMap = new LinkedHashMap<>();    
+    private static Map<String,CrudDbTable> containerMap = new LinkedHashMap<>();    
 
     
     private static Map<String,Object> ENVS;
@@ -70,57 +70,57 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     
     
     @Override
-    public void load (File dbstoredFile) {
+    public void load (File dbtableFile) {
         
         last_error = "";
         
-        if (dbstoredFile==null) {
-            NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file  , it is NULL !");
+        if (dbtableFile==null) {
+            NLogger.logger(NLogBlock.DBTABLE,NLog.ERROR,"DbTablesLoader","load","system", "Unable to load DB table file  !");
         }
         
-        CrudDbStored crudDbStored = new CrudDbStored();
+        CrudDbTable crudDbTable = new CrudDbTable();
         
 
         
-        if (dbstoredFile.exists()) {
-            if (dbstoredFile.isFile()) {
-                if (dbstoredFile.canRead()) {
+        if (dbtableFile.exists()) {
+            if (dbtableFile.isFile()) {
+                if (dbtableFile.canRead()) {
                     
-                    NLogger.logger(NLogBlock.DBSTORED,NLog.MESSAGE,"DbStoredLoader","load","system","Loading dbstored file ->" + dbstoredFile.getName());
+                    NLogger.logger(NLogBlock.DBTABLE,NLog.MESSAGE,"DbTablesLoader","load","system","Loading dbtable file ->" + dbtableFile.getName());
                     
-                    crudDbStored.setFilepath(dbstoredFile.getAbsolutePath());
-                    crudDbStored.setTimeModified(dbstoredFile.lastModified());
+                    crudDbTable.setFilepath(dbtableFile.getAbsolutePath());
+                    crudDbTable.setTimeModified(dbtableFile.lastModified());
                     
                     StringBuilder contentBuilder = new StringBuilder();
-                    try (Stream<String> stream = Files.lines( Paths.get(dbstoredFile.getPath()), StandardCharsets.UTF_8)) {
+                    try (Stream<String> stream = Files.lines( Paths.get(dbtableFile.getPath()), StandardCharsets.UTF_8)) {
                         stream.forEach(s -> contentBuilder.append(s).append("\n"));
                     } catch (IOException e) {
-                       NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system","Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , Exception message: " + e.getMessage());
+                       NLogger.logger(NLogBlock.DBTABLE,NLog.ERROR,"DbTablesLoader","load","system","Unable to load DB table file \"" + dbtableFile.getName() + "\" , Exception message: " + e.getMessage());
                     }
                     
-                    crudDbStored.setName(dbstoredFile.getName().split("\\.")[0]);
-                    crudDbStored.setContent(contentBuilder.toString());
+                    crudDbTable.setName(dbtableFile.getName().split("\\.")[0]);
+                    crudDbTable.setContent(contentBuilder.toString());
                 } else {
-                    NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not readable (permissions ?) !");
+                    NLogger.logger(NLogBlock.DBTABLE, NLog.ERROR,"DbTablesLoader","load","system", "Unable to load DB ta file \"" + dbtableFile.getName() + "\" , it is not readable (permissions ?) !");
                 }
             } else {
-                NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not file !");
+                NLogger.logger(NLogBlock.DBTABLE, NLog.ERROR,"DbTablesLoader","load","system", "Unable to load DB table file \"" + dbtableFile.getName() + "\" , it is not file !");
             }
         } else {
-            NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not exists !");
+            NLogger.logger(NLogBlock.DBTABLE, NLog.ERROR,"DbTablesLoader","load","system", "Unable to load DB table file \"" + dbtableFile.getName() + "\" , it is not exists !");
         }
         
-       containerMap.put(crudDbStored.getName(), crudDbStored);
+       containerMap.put(crudDbTable.getName(), crudDbTable);
         
         AdminFunctions databaseAdminFunctions = new AdminFunctions(ENVS,"system");
 
-        if (!crudDbStored.getContent().isEmpty()) {
+        if (!crudDbTable.getContent().isEmpty()) {
   
             try {
-                databaseAdminFunctions.executeStatement(crudDbStored.getContent());
+                databaseAdminFunctions.executeStatement(crudDbTable.getContent());
             } catch (MachineDataException | ClassNotFoundException | SQLException ex) {
                 last_error = ex.getMessage();
-                Logger.getLogger(DbStoredLoader.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DbTablesLoader.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }       
@@ -129,12 +129,12 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     }
     
     @Override
-    public void add (CrudDbStored crudDbStored) {
+    public void add (CrudDbTable crudDbTable) {
         
-            containerMap.put(crudDbStored.getName(), crudDbStored);
+            containerMap.put(crudDbTable.getName(), crudDbTable);
 
                     try {
-                        new AdminFunctions(ENVS,"system").executeStatement(crudDbStored.getContent());
+                        new AdminFunctions(ENVS,"system").executeStatement(crudDbTable.getContent());
                         
                     } catch (MachineDataException | ClassNotFoundException | SQLException ex) {
                         Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
@@ -142,26 +142,26 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     }    
     
     @Override
-    public  CrudDbStored get (String dbstored) {
-                return containerMap.get(dbstored);
+    public  CrudDbTable get (String dbtable) {
+                return containerMap.get(dbtable);
     }
     
     @Override
-    public  List<CrudDbStored> getList() {
+    public  List<CrudDbTable> getList() {
         
-                CrudDbStored[] db_stored = new CrudDbStored[containerMap.size()];
+                CrudDbTable[] db_table = new CrudDbTable[containerMap.size()];
                 
                 int index=0;
-                for (Map.Entry<String,CrudDbStored> entry : containerMap.entrySet()) {
-                    db_stored[index] = entry.getValue();
+                for (Map.Entry<String,CrudDbTable> entry : containerMap.entrySet()) {
+                    db_table[index] = entry.getValue();
                     index++;
                 }
                 
 
-                Arrays.sort(db_stored, Comparator.comparingLong(CrudDbStored::getTimeModified).reversed());        
+                Arrays.sort(db_table, Comparator.comparingLong(CrudDbTable::getTimeModified).reversed());        
                 
                 
-                return Arrays.asList(db_stored);
+                return Arrays.asList(db_table);
                 
     }    
  
@@ -171,11 +171,11 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
      public void loadAll(String path) {
         
         
-            var dbStoredPath = new File(path);
+            var dbTablePath = new File(path);
             
-            if (dbStoredPath.exists() && dbStoredPath.isDirectory()) {
+            if (dbTablePath.exists() && dbTablePath.isDirectory()) {
                 
-                File[] files = dbStoredPath.listFiles();
+                File[] files = dbTablePath.listFiles();
                 Arrays.sort(files, Comparator.comparingLong(File::lastModified).reversed());
                 
                 for (File objfile : files) {
@@ -191,7 +191,7 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
 
                 
             } else {
-                NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system","No dbstored folder on path: " + ENVS.get("dbstored_path"));
+                NLogger.logger(NLogBlock.DBTABLE,NLog.ERROR,"DbTablesLoader","load","system","No dbtable folder on path: " + path);
             }
             
     }          

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,11 @@
 package org.acceix.frontend.helpers;
 
 import org.acceix.frontend.templates.NTemplateLoader;
-import de.neuland.jade4j.Jade4J;
-import de.neuland.jade4j.JadeConfiguration;
-import de.neuland.jade4j.exceptions.JadeCompilerException;
-import de.neuland.jade4j.template.JadeTemplate;
-import de.neuland.jade4j.template.TemplateLoader;
+import de.neuland.pug4j.Pug4J;
+import de.neuland.pug4j.PugConfiguration;
+import de.neuland.pug4j.exceptions.PugCompilerException;
+import de.neuland.pug4j.template.FileTemplateLoader;
+import de.neuland.pug4j.template.PugTemplate;
 import org.acceix.frontend.database.AdminFunctions;
 import org.acceix.frontend.models.RoleModel;
 import org.acceix.frontend.web.commons.FrontendSecurity;
@@ -51,7 +51,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.acceix.ndatabaseclient.MachineDataException;
+import org.acceix.ndatabaseclient.exceptions.MachineDataException;
 import org.acceix.logger.NLog;
 import org.acceix.logger.NLogBlock;
 import org.acceix.logger.NLogger;
@@ -93,6 +93,8 @@ public abstract class ModuleHelper {
         private String defaultPage = "";
         private String mainPage = "";
         private boolean authenticatedByToken = false;
+        
+        private String moduleNicename = "";
         
         
         
@@ -446,6 +448,8 @@ public abstract class ModuleHelper {
         public void setModuleName(String moduleName) {
             moduleSettings.setName(moduleName);
         }
+
+        
         
         public String getModuleNiceName() {
             return moduleSettings.getNiceName();
@@ -572,6 +576,10 @@ public abstract class ModuleHelper {
             getHttpServletResponse().setContentType(contentType);
         }
         
+        public void setCharacterEncoding(String encodingType) {
+            getHttpServletResponse().setCharacterEncoding(encodingType);
+        }
+        
         public void setSessionAttribute(String key,Object value) {
             this.httpSess.setAttribute(key, value);
         }
@@ -602,7 +610,9 @@ public abstract class ModuleHelper {
         public void renderData (String viewFilename) throws IOException {
             
             if (viewFilename==null) {
+                //setContentType("application/json; charset = UTF-8");
                 setContentType("application/json");
+                setCharacterEncoding("utf-8");
                 sendToClient(nDataTools.beautyfyJson(nDataTools.mapToJsonString(getDataModel())));
             } else {
                 
@@ -614,10 +624,12 @@ public abstract class ModuleHelper {
                     switch ((String)getParameter("of")) {
                         case "json":
                             setContentType("application/json");
+                            setCharacterEncoding("utf-8");
                             sendToClient(nDataTools.mapToJsonString(getDataModel()));
                             break;
                         case "json2":
-                            setContentType("application/json");                                                       
+                            setContentType("application/json"); 
+                            setCharacterEncoding("utf-8");
                             sendToClient(nDataTools.beautyfyJson(nDataTools.mapToJsonString(getDataModel())));                            
 
                             break;
@@ -657,8 +669,8 @@ public abstract class ModuleHelper {
                         
                         if (viewFilename.startsWith("/views/")) {
                             viewFilename = viewFilename.substring(6, viewFilename.length());
-                            if (new File(getGlobalEnvs().get("custom_views_path") + viewFilename + ".jade").exists()) {
-                                sendToClient(Jade4J.render(getGlobalEnvs().get("custom_views_path") + viewFilename, getDataModel(),true));
+                            if (new File(getGlobalEnvs().get("custom_views_path") + viewFilename + ".pug").exists()) {
+                                sendToClient(Pug4J.render(getGlobalEnvs().get("custom_views_path") + viewFilename+ ".pug" , getDataModel(),true));
                             } else {
                                 NLogger.logger(NLogBlock.WEB,NLog.ERROR,getModuleName(),getModuleName(),getUsername(),"Template not found, path=" + getGlobalEnvs().get("views_path") + viewFilename);
                             }
@@ -666,26 +678,33 @@ public abstract class ModuleHelper {
                             
                             viewFilename = viewFilename.substring(6, viewFilename.length());
                             
-                            JadeConfiguration config = new JadeConfiguration();
-                            TemplateLoader loader = new NTemplateLoader();
+                            var config = new PugConfiguration();
+                            var loader = new NTemplateLoader();
 
 
                             config.setTemplateLoader(loader);
                             
-                            JadeTemplate template = config.getTemplate(viewFilename);
+                            PugTemplate template = config.getTemplate(viewFilename + ".pug" );
 
-                            sendToClient(Jade4J.render(template, getDataModel(),true));                            
+                            sendToClient(Pug4J.render(template, getDataModel(),true));                            
                         } else {
-                            if (new File(getGlobalEnvs().get("admin_views_path") + viewFilename + ".jade").exists()) {
-                                sendToClient(Jade4J.render(getGlobalEnvs().get("admin_views_path") + viewFilename, getDataModel(),true));
-                                //System.out.println("yes found on " + getGlobalEnvs().get("admin_views_path") + viewFilename);
+                            if (new File(getGlobalEnvs().get("admin_views_path") + viewFilename + ".pug").exists()) {
+                                
+                                PugConfiguration config = new PugConfiguration();
+                                FileTemplateLoader loader = new FileTemplateLoader((String)getGlobalEnvs().get("admin_views_path"));
+                                config.setTemplateLoader(loader);
+                                PugTemplate template = config.getTemplate(viewFilename);
+
+
+                                sendToClient(Pug4J.render(template , getDataModel(),true));
+                                //sendToClient(Pug4J.render(getGlobalEnvs().get("admin_views_path") + viewFilename + ".pug" , getDataModel(),true));
                             } else {
                                 NLogger.logger(NLogBlock.WEB,NLog.ERROR,getModuleName(),"modulehelper",getUsername(), "Template not found, path=" + getGlobalEnvs().get("admin_views_path") + viewFilename);
                             }                            
                         }
                         
                         //sendToClient("Hello");
-                    } catch (IOException | JadeCompilerException ex) {
+                    } catch (IOException | PugCompilerException ex) {
                         Logger.getLogger(ModuleHelper.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     

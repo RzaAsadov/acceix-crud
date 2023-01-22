@@ -25,8 +25,7 @@
 package org.acceix.frontend.crud.models;
 
 
-public class CrudAsset extends  CrudElemental {
-    
+public class CrudDbTrigger extends CrudElemental {
 
     
 }

@@ -24,7 +24,7 @@
 
 package org.acceix.frontend.crud.loaders;
 
-import org.acceix.frontend.crud.models.CrudDbStored;
+import org.acceix.frontend.crud.models.CrudDbTrigger;
 import org.acceix.frontend.database.AdminFunctions;
 import java.io.File;
 import java.io.IOException;
@@ -51,9 +51,9 @@ import org.acceix.logger.NLogger;
  *
  * @author zrid
  */
-public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStored> {
+public class DbTriggersLoader extends LoaderHelper implements Container<CrudDbTrigger> {
     
-    private static Map<String,CrudDbStored> containerMap = new LinkedHashMap<>();    
+    private static Map<String,CrudDbTrigger> containerMap = new LinkedHashMap<>();    
 
     
     private static Map<String,Object> ENVS;
@@ -70,57 +70,57 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     
     
     @Override
-    public void load (File dbstoredFile) {
+    public void load (File dbtriggerFile) {
         
         last_error = "";
         
-        if (dbstoredFile==null) {
-            NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file  , it is NULL !");
+        if (dbtriggerFile==null) {
+            NLogger.logger(NLogBlock.DBTRIGGER,NLog.ERROR,"DbTriggersLoader","load","system", "Unable to load Trigger DB file  , it is NULL !");
         }
         
-        CrudDbStored crudDbStored = new CrudDbStored();
+        CrudDbTrigger crudDbTrigger = new CrudDbTrigger();
         
 
         
-        if (dbstoredFile.exists()) {
-            if (dbstoredFile.isFile()) {
-                if (dbstoredFile.canRead()) {
+        if (dbtriggerFile.exists()) {
+            if (dbtriggerFile.isFile()) {
+                if (dbtriggerFile.canRead()) {
                     
-                    NLogger.logger(NLogBlock.DBSTORED,NLog.MESSAGE,"DbStoredLoader","load","system","Loading dbstored file ->" + dbstoredFile.getName());
+                    NLogger.logger(NLogBlock.DBTRIGGER,NLog.MESSAGE,"DbTriggersLoader","load","system","Loading dbtrigger file ->" + dbtriggerFile.getName());
                     
-                    crudDbStored.setFilepath(dbstoredFile.getAbsolutePath());
-                    crudDbStored.setTimeModified(dbstoredFile.lastModified());
+                    crudDbTrigger.setFilepath(dbtriggerFile.getAbsolutePath());
+                    crudDbTrigger.setTimeModified(dbtriggerFile.lastModified());
                     
                     StringBuilder contentBuilder = new StringBuilder();
-                    try (Stream<String> stream = Files.lines( Paths.get(dbstoredFile.getPath()), StandardCharsets.UTF_8)) {
+                    try (Stream<String> stream = Files.lines( Paths.get(dbtriggerFile.getPath()), StandardCharsets.UTF_8)) {
                         stream.forEach(s -> contentBuilder.append(s).append("\n"));
                     } catch (IOException e) {
-                       NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system","Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , Exception message: " + e.getMessage());
+                       NLogger.logger(NLogBlock.DBTRIGGER,NLog.ERROR,"DbTriggersLoader","load","system","Unable to load Stored DB file \"" + dbtriggerFile.getName() + "\" , Exception message: " + e.getMessage());
                     }
                     
-                    crudDbStored.setName(dbstoredFile.getName().split("\\.")[0]);
-                    crudDbStored.setContent(contentBuilder.toString());
+                    crudDbTrigger.setName(dbtriggerFile.getName().split("\\.")[0]);
+                    crudDbTrigger.setContent(contentBuilder.toString());
                 } else {
-                    NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not readable (permissions ?) !");
+                    NLogger.logger(NLogBlock.DBTRIGGER, NLog.ERROR,"DbTriggersLoader","load","system", "Unable to load Stored DB file \"" + dbtriggerFile.getName() + "\" , it is not readable (permissions ?) !");
                 }
             } else {
-                NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not file !");
+                NLogger.logger(NLogBlock.DBTRIGGER, NLog.ERROR,"DbTriggersLoader","load","system", "Unable to load Stored DB file \"" + dbtriggerFile.getName() + "\" , it is not file !");
             }
         } else {
-            NLogger.logger(NLogBlock.DBSTORED, NLog.ERROR,"DbStoredLoader","load","system", "Unable to load Stored DB file \"" + dbstoredFile.getName() + "\" , it is not exists !");
+            NLogger.logger(NLogBlock.DBTRIGGER, NLog.ERROR,"DbTriggersLoader","load","system", "Unable to load Stored DB file \"" + dbtriggerFile.getName() + "\" , it is not exists !");
         }
         
-       containerMap.put(crudDbStored.getName(), crudDbStored);
+       containerMap.put(crudDbTrigger.getName(), crudDbTrigger);
         
         AdminFunctions databaseAdminFunctions = new AdminFunctions(ENVS,"system");
 
-        if (!crudDbStored.getContent().isEmpty()) {
+        if (!crudDbTrigger.getContent().isEmpty()) {
   
             try {
-                databaseAdminFunctions.executeStatement(crudDbStored.getContent());
+                databaseAdminFunctions.executeStatement(crudDbTrigger.getContent());
             } catch (MachineDataException | ClassNotFoundException | SQLException ex) {
                 last_error = ex.getMessage();
-                Logger.getLogger(DbStoredLoader.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(DbTriggersLoader.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         }       
@@ -129,12 +129,12 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     }
     
     @Override
-    public void add (CrudDbStored crudDbStored) {
+    public void add (CrudDbTrigger crudDbTrigger) {
         
-            containerMap.put(crudDbStored.getName(), crudDbStored);
+            containerMap.put(crudDbTrigger.getName(), crudDbTrigger);
 
                     try {
-                        new AdminFunctions(ENVS,"system").executeStatement(crudDbStored.getContent());
+                        new AdminFunctions(ENVS,"system").executeStatement(crudDbTrigger.getContent());
                         
                     } catch (MachineDataException | ClassNotFoundException | SQLException ex) {
                         Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
@@ -142,26 +142,26 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
     }    
     
     @Override
-    public  CrudDbStored get (String dbstored) {
-                return containerMap.get(dbstored);
+    public  CrudDbTrigger get (String dbtrigger) {
+                return containerMap.get(dbtrigger);
     }
     
     @Override
-    public  List<CrudDbStored> getList() {
+    public  List<CrudDbTrigger> getList() {
         
-                CrudDbStored[] db_stored = new CrudDbStored[containerMap.size()];
+                CrudDbTrigger[] db_trigger = new CrudDbTrigger[containerMap.size()];
                 
                 int index=0;
-                for (Map.Entry<String,CrudDbStored> entry : containerMap.entrySet()) {
-                    db_stored[index] = entry.getValue();
+                for (Map.Entry<String,CrudDbTrigger> entry : containerMap.entrySet()) {
+                    db_trigger[index] = entry.getValue();
                     index++;
                 }
                 
 
-                Arrays.sort(db_stored, Comparator.comparingLong(CrudDbStored::getTimeModified).reversed());        
+                Arrays.sort(db_trigger, Comparator.comparingLong(CrudDbTrigger::getTimeModified).reversed());        
                 
                 
-                return Arrays.asList(db_stored);
+                return Arrays.asList(db_trigger);
                 
     }    
  
@@ -191,7 +191,7 @@ public class DbStoredLoader extends LoaderHelper implements Container<CrudDbStor
 
                 
             } else {
-                NLogger.logger(NLogBlock.DBSTORED,NLog.ERROR,"DbStoredLoader","load","system","No dbstored folder on path: " + ENVS.get("dbstored_path"));
+                NLogger.logger(NLogBlock.DBTRIGGER,NLog.ERROR,"DbTriggersLoader","load","system","No dbtrigger folder on path: " + ENVS.get("dbtrigger_path"));
             }
             
     }          

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@
 
 package org.acceix.frontend.crud.loaders;
 
-import org.acceix.frontend.crud.models.CrudElemental;
 import org.acceix.frontend.crud.models.CrudScript;
 import java.io.File;
 import java.util.Arrays;
@@ -33,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.acceix.frontend.crud.interfaces.Container;
+import org.acceix.frontend.helpers.LoaderHelper;
 import org.acceix.logger.NLog;
 import org.acceix.logger.NLogBlock;
 import org.acceix.logger.NLogger;
@@ -41,7 +41,7 @@ import org.acceix.logger.NLogger;
  *
  * @author zrid
  */
-public class ScriptLoader implements Container<CrudScript> {
+public class ScriptLoader extends LoaderHelper implements Container<CrudScript> {
 
     
     private static Map<String,CrudScript> containerMap = new LinkedHashMap<>();    

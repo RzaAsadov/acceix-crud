@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,12 @@
 
 package org.acceix.frontend.crud.loaders;
 
-import org.acceix.ndatabaseclient.DataTypes;
+import org.acceix.ndatabaseclient.mysql.DataTypes;
 import org.acceix.frontend.crud.models.CrudField;
 import org.acceix.frontend.crud.models.CrudFilterField;
 import org.acceix.frontend.crud.models.CrudObject;
 import org.acceix.frontend.crud.models.CrudTable;
-import org.acceix.frontend.helpers.DbMetaData;
+import org.acceix.ndatabaseclient.mysql.DbMetaData;
 import org.acceix.frontend.web.commons.DataUtils;
 import java.io.File;
 import java.io.IOException;
@@ -43,8 +43,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.acceix.ndatabaseclient.DataConnector;
+import org.acceix.ndatabaseclient.mysql.DataConnector;
 import org.acceix.frontend.crud.interfaces.Container;
+import org.acceix.frontend.helpers.LoaderHelper;
 import org.acceix.logger.NLog;
 import org.acceix.logger.NLogBlock;
 import org.acceix.logger.NLogger;
@@ -54,7 +55,7 @@ import org.json.simple.parser.ParseException;
  *
  * @author zrid
  */
-public class ObjectLoader implements Container<CrudObject> {
+public class ObjectLoader extends LoaderHelper implements Container<CrudObject> {
     
     private static Map<String,CrudObject> containerMap = new LinkedHashMap<>();
     
@@ -194,6 +195,7 @@ public class ObjectLoader implements Container<CrudObject> {
         nCrudObject.setTitle((String)jSONObject.get("title"));
         nCrudObject.setCreatable((boolean)jSONObject.getOrDefault("creatable",Boolean.FALSE));
         nCrudObject.setEditable((boolean)jSONObject.getOrDefault("editable",Boolean.FALSE));
+        nCrudObject.setDeletable((boolean)jSONObject.getOrDefault("deletable",Boolean.FALSE));
         nCrudObject.setRequireAuth((boolean)jSONObject.getOrDefault("requireAuth",Boolean.TRUE));
         
         nCrudObject.setRoleCreate((String)jSONObject.getOrDefault("roleCreate",""));
@@ -416,8 +418,8 @@ public class ObjectLoader implements Container<CrudObject> {
 
                             nCrudField.setFileStatus((String)tableFields.getOrDefault("security","private"));
                             nCrudField.setApiKey((String)tableFields.getOrDefault("apiKey","null"));
-                            nCrudField.setDefaultCountry((String)tableFields.getOrDefault("defaultCountry","null"));
-                            nCrudField.setDefaultCity((String)tableFields.getOrDefault("defaultCity","null"));
+                            nCrudField.setDefaultLat((String)tableFields.getOrDefault("defaultlat","null"));
+                            nCrudField.setDefaultLong((String)tableFields.getOrDefault("defaultlong","null"));
 
 
                                        
@@ -459,6 +461,9 @@ public class ObjectLoader implements Container<CrudObject> {
                             }
 
                     } catch (ClassCastException ex) {
+                        
+                        Logger.getLogger(DbStoredLoader.class.getName()).log(Level.SEVERE, null, ex);
+
                         System.out.println("Wrong field type in object=" + objectName + " field=" + tableField);
                     }
 

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 
-public class NCodeButtons {
+public class ButtonsHelper {
     
     
         public Map<String,Object> createButton (String name,String url,String color,boolean isConfirmNeeded, String icon, String container) {
@@ -41,6 +41,23 @@ public class NCodeButtons {
                         buttonresp.put("askconfirm", isConfirmNeeded);
                         buttonresp.put("icon", icon);
                         buttonresp.put("container", container);
+                        buttonresp.put("size", "medium");
+
+                        return buttonresp;
+                        
+        }
+        
+    
+        public Map<String,Object> createButton (String name,String url,String color,boolean isConfirmNeeded, String icon, String size, String container) {
+            
+                        Map<String,Object> buttonresp = new LinkedHashMap<>();
+                        buttonresp.put("name", name);
+                        buttonresp.put("url", url);
+                        buttonresp.put("color", color);
+                        buttonresp.put("askconfirm", isConfirmNeeded);
+                        buttonresp.put("icon", icon);
+                        buttonresp.put("container", container);
+                        buttonresp.put("size", size);
 
                         return buttonresp;
                         

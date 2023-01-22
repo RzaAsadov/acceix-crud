@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,12 +36,13 @@ import org.acceix.logger.NLog;
 import org.acceix.logger.NLogBlock;
 import org.acceix.logger.NLogger;
 import org.acceix.frontend.crud.interfaces.Container;
+import org.acceix.frontend.helpers.LoaderHelper;
 
 /**
  *
  * @author zrid
  */
-public class CustomViewsLoader implements Container {
+public class CustomViewsLoader extends LoaderHelper implements Container {
     
     
     private static Map<String,CrudView> containerMap = new LinkedHashMap<>();    

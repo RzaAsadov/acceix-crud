@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 
-public class NTemplateLoader implements de.neuland.jade4j.template.TemplateLoader {
+public class NTemplateLoader implements de.neuland.pug4j.template.TemplateLoader {
     
 
     @Override
@@ -43,6 +43,16 @@ public class NTemplateLoader implements de.neuland.jade4j.template.TemplateLoade
                 return new InputStreamReader(this.getClass()
                                             .getClassLoader()
                                             .getResourceAsStream("frontend/templates" + viewFilename));
+    }
+
+    @Override
+    public String getExtension() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String getBase() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
             
 }

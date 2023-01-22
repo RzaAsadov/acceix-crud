@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 Rza Asadov (rza dot asadov at gmail dot com).
+ * Copyright 2022 Rza Asadov (rza at asadov dot me).
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import org.acceix.frontend.crud.models.CrudField;
 import org.acceix.frontend.crud.models.CrudFunction;
 import org.acceix.frontend.crud.models.CrudInput;
 import org.acceix.frontend.helpers.RequestObject;
-import org.acceix.ndatabaseclient.DataTypes;
+import org.acceix.ndatabaseclient.mysql.DataTypes;
 import org.acceix.frontend.web.commons.DataUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,10 +49,10 @@ import java.util.Map;
 import java.util.StringJoiner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.acceix.ndatabaseclient.MachineDataSet;
-import org.acceix.ndatabaseclient.DataConnector;
-import org.acceix.ndatabaseclient.MachineDataException;
-import org.acceix.ndatabaseclient.ResultSetConverter;
+import org.acceix.ndatabaseclient.dataset.MachineDataSet;
+import org.acceix.ndatabaseclient.mysql.DataConnector;
+import org.acceix.ndatabaseclient.exceptions.MachineDataException;
+import org.acceix.ndatabaseclient.mysql.ResultSetConverter;
 import org.acceix.logger.NLog;
 import org.acceix.logger.NLogBlock;
 import org.acceix.logger.NLogger;
@@ -314,6 +314,8 @@ public class FunctionOperations {
                 
                 
             } 
+            
+            
             dataConnector.closeConnection();
             return handleNetondoBlock(returnValue);
                     
@@ -533,7 +535,7 @@ public class FunctionOperations {
                                                                                         .executeSelect();
                                         
                                     } catch (SQLException | ClassNotFoundException ex) {
-                                        Logger.getLogger(ObjectOperations.class.getName()).log(Level.SEVERE, null, ex);
+                                        Logger.getLogger(ObjectReadOperations.class.getName()).log(Level.SEVERE, null, ex);
                                         return null;
                                     }
 
